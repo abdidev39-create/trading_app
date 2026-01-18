@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 import io from "socket.io-client";
 
 const PriceFeedContext = createContext();
-const socket = io("http://localhost:3000", { transports: ["websocket"] });
+const socket = io("https://trading-platform-qfig.onrender.com", { transports: ["websocket"] });
 
 export const PriceFeedProvider = ({ children }) => {
   const [prices, setPrices] = useState({});
