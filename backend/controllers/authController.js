@@ -56,15 +56,12 @@ export const firebase = async (req, res) => {
   try {
 
     const { googleId, name, email, avatar } = req.body;
-
-
-
     const hashedPassword = await bcrypt.hash(googleId, 10);
     let user = await userModel.findOne({ googleId });
     let msg = 'Login successful'
     if (!user) {
       
-      const existingUser = await userModel.findOne({ email });
+      const existingUser = await userModel.findOne({email});
       console.log("Existing user:", existingUser);
 
       if (existingUser) {

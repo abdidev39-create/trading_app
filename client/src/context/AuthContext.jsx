@@ -13,7 +13,7 @@ export const AuthProvider = ({ children }) => {
     const [isOtpSend, setIsOtpSend] = useState(false);
     const [showProfile, setShowProfile] = useState(false);
 
-    const backendUrl = 'http://localhost:3000/'; // Changed from 3000 to 5000 (backend port)
+    const backendUrl = 'http://localhost:3000/';
 
     // Admin state
     const [AuserData, AsetUserData] = useState(null);
