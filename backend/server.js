@@ -7,7 +7,6 @@ import cookieParser from "cookie-parser";
 import path from "path";
 import { fileURLToPath } from "url";
 import history from "connect-history-api-fallback";
-
 import connectToMongoDB from "./config/mongodb.js";
 
 // Routes
@@ -23,6 +22,8 @@ import conversionRouter from "./routes/conversionRoutes.js";
 import notificationRouter from "./routes/notificationRoutes.js";
 
 import PriceFeedService from "./services/priceFeed.js";
+import './services/orderProcessor.js';
+
 
 dotenv.config();
 
