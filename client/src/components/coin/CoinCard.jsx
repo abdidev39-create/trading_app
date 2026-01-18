@@ -36,7 +36,7 @@ export default function CoinCard({ name, symbol, price, change, onClick }) {
 
             whileHover={{ scale: 1.01 }}
             transition={{ duration: 0.2 }}
-            className="rounded-xl overflow-hidden sm:p-3 max-w-2xl m-auto cursor-pointer"
+            className="rounded-xl overflow-hidden py-2 sm:p-3 max-w-2xl m-auto cursor-pointer"
         >
 
 
