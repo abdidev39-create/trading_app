@@ -18,7 +18,7 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 // API configuration
-const API_URL = 'https://trading-platform-qfig.onrender.com/api';
+const API_URL = 'https://trading-app-fdzj.onrender.com/api';
 
 // Create axios instance
 const api = axios.create({

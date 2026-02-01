@@ -13,7 +13,7 @@ export const AuthProvider = ({ children }) => {
     const [isOtpSend, setIsOtpSend] = useState(false);
     const [showProfile, setShowProfile] = useState(false);
 
-    const backendUrl = 'https://trading-platform-qfig.onrender.com/';
+    const backendUrl = "https://trading-app-fdzj.onrender.com/"
 
     // Admin state
     const [AuserData, AsetUserData] = useState(null);

@@ -41,7 +41,7 @@ export const OrderWebSocketProvider = ({ children }) => {
 
   useEffect(() => {
     // Initialize socket connection
-    socketRef.current = io("https://trading-platform-qfig.onrender.com", { 
+    socketRef.current = io("https://trading-app-fdzj.onrender.com", { 
       transports: ["websocket"],
       path: '/socket.io', // or your custom path
       reconnection: true,
