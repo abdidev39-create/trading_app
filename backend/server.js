@@ -37,7 +37,8 @@ const app = express();
 /* ---------- Middleware ---------- */
 const allow = [
   "http://localhost:5173",
-  "https://trading-platform-qfig.onrender.com/"
+  //"https://trading-platform-qfig.onrender.com/",
+  "https://trading-app-fdzj.onrender.com/"
 ];
 
 app.use(cors({ origin: allow, credentials: true }));

@@ -163,7 +163,7 @@ export default function ProfilePage() {
               </div>
 
               {/* Total Balance */}
-              {/* <div className="bg-gray-700/50 rounded-lg p-4 mb-6 border border-gray-600">
+              <div className="bg-gray-700/50 rounded-lg p-4 mb-6 border border-gray-600">
               <p className="text-gray-400 text-sm mb-1">Total Balance</p>
               <div className="flex items-end justify-between">
                 <div>
@@ -180,7 +180,7 @@ export default function ProfilePage() {
                   </div>
                 </div>
               </div>
-            </div> */}
+            </div>
 
               {/* Balance Breakdown */}
               {/* <div className="grid grid-cols-3 gap-4 mb-6">
