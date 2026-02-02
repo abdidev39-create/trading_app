@@ -1,7 +1,7 @@
 // src/services/api.js
 import axios from 'axios';
 
-const API_BASE_URL = 'https://trading-app-fdzj.onrender.comi';
+const API_BASE_URL = 'https://trading-app-fdzj.onrender.com/api';
 
 // Create axios instance
 const api = axios.create({

@@ -168,14 +168,14 @@ export default function ProfilePage() {
               <div className="flex items-end justify-between">
                 <div>
                   <p className="text-2xl font-bold text-white mb-1">
-                    {showBalance ? `$${balances.total.toLocaleString()}` : "••••••"}
+                    {/* {showBalance ? `$${balances.total.toLocaleString()}` : "••••••"} */}
                   </p>
                   <div className="flex items-center gap-2">
                     <span className="text-green-400 text-sm font-medium">
-                      {showBalance ? balances.change : "••••"}
+                      {/* {showBalance ? balances.change : "••••"} */}
                     </span>
                     <span className="text-gray-500 text-sm">
-                      {showBalance ? balances.changeAmount : "••••••"}
+                      {/* {showBalance ? balances.changeAmount : "••••••"} */}
                     </span>
                   </div>
                 </div>
