@@ -15,10 +15,18 @@ import binancecoin from './binance.svg';
 import dogecoin from './dogs.svg';
 import ripple from './xrp.svg';
 import hero from './hero.jpg';
+import hero1 from './hero1.png';
+import hero2 from './hero2.png';
+import hero3 from './hero3.png';
+
+
 
 
 export const assets = {
     hero,
+    hero1,
+    hero2,
+    hero3,
     bitcoin,
     ethereum,
     xrp,
