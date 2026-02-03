@@ -8,6 +8,7 @@ import GetStart from '../components/GetStart'
 import { useAuth } from '../context/AuthContext'
 import { useState } from 'react'
 import VerifyAccountModal from '../components/VerifyAccountModal'
+import TawkButton from '../components/TawkButton.jsx' 
 
 
 const Home = () => {
@@ -22,6 +23,7 @@ const Home = () => {
       <Hero />
       <CoinList />
       <MobileNav />
+      <TawkButton/>
 
 
       {!isLogin && <GetStart />}

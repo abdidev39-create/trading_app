@@ -11,6 +11,7 @@ export default function ConvertModal({
     cryptoAssets, // Receive crypto assets configuration
     userBalance // { btc: 0.5, eth: 2.1, usdt: 5000 }
 }) {
+    
     const [convertFrom, setConvertFrom] = useState("BTC");
     const [convertAmount, setConvertAmount] = useState("");
     const [isConverting, setIsConverting] = useState(false);
@@ -110,7 +111,7 @@ export default function ConvertModal({
         setIsConverting(true);
 
         try {
-            console.log('test1')
+            
 
             const data = {
                 fromCurrency: convertFrom,

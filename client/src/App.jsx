@@ -39,7 +39,7 @@ const App = () => {
     <div>
       <ToastContainer />
            {/* <Tawk />  */}
-         <TawkButton/>
+         {/* <TawkButton/> */}
       <Suspense fallback={<Loading text="Please wait..." />}>
         <Routes>
           <Route path="/" element={<Home />} />

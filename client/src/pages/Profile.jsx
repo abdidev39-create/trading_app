@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   LogOut, Eye, EyeOff, ChevronLeft,
   Bell, CheckCircle2, HelpCircle, ArrowDownCircle,
@@ -8,41 +8,63 @@ import {
   CreditCard,
   Shield,
   User
-  
+
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import axios from "axios";
 import { assets } from "../assets/assets";
 import MobileNav from "../components/MobileNav";
-import { useEffect } from "react";
 import { toast } from "react-toastify";
 import Loading from "../components/Loading";
 
 export default function ProfilePage() {
-  
+
   const navigate = useNavigate();
   const [showBalance, setShowBalance] = useState(false);
-  const { backendUrl, token } = useAuth()
-  const [userdata, setUserdata] = useState(
-    {
-      name: "",
-      email: "",
-      avatar: "",
-      wallet: {
-        usdt: 0,
-        btc: 0,
-        eth: 0,
-        loanUsdt: 0.00
-      }
+  const { backendUrl, token } = useAuth();
+  const [userdata, setUserdata] = useState({
+    name: "",
+    email: "",
+    avatar: "",
+    wallet: {
+      usdt: 0,
+      btc: 0,
+      eth: 0,
+      loanUsdt: 0.00
     }
+  });
+  const [loading, setLoading] = useState(false);
+  const [marketPrices, setMarketPrices] = useState(null);
+  const [priceLoading, setPriceLoading] = useState(false);
+  const [lastUpdated, setLastUpdated] = useState(null);
 
-  )
-  const [loading, setLoading] = useState(false)
+  const getMarketPrices = async () => {
+    try {
+      setPriceLoading(true);
+      const response = await axios.get(`${backendUrl}api/conversions/prices`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      if (response.data.success) {
+        setMarketPrices(response.data.data);
+        setLastUpdated(response.data.timestamp);
+      } else {
+        toast.error(response.data.message || "Failed to fetch market prices");
+      }
+    } catch (error) {
+      console.error('Error getting prices:', error);
+      toast.error("Failed to fetch market prices");
+    } finally {
+      setPriceLoading(false);
+    }
+  };
 
   const fetchProfile = async () => {
     try {
-      setLoading(true)
+      setLoading(true);
       const res = await axios.get(`${backendUrl}api/auth/profile`, {
         headers: {
           Authorization: `Bearer ${token}`
@@ -50,31 +72,84 @@ export default function ProfilePage() {
       });
 
       if (res.data.success) {
-        setUserdata(res.data.user)
+        setUserdata(res.data.user);
       } else {
-        toast.error('fetch failed')
-
+        toast.error('Fetch failed');
       }
-
-
     } catch (error) {
-      toast.error("Profile fetch failed:");
+      toast.error("Profile fetch failed");
       return null;
     } finally {
-      setLoading(false)
-
+      setLoading(false);
     }
   };
 
-
   useEffect(() => {
-    fetchProfile()
+    fetchProfile();
+    getMarketPrices();
 
-  }, [])
+    // Refresh prices every 30 seconds
+    const intervalId = setInterval(() => {
+      getMarketPrices();
+    }, 30000);
 
+    return () => clearInterval(intervalId);
+  }, []);
 
+  // Calculate total balance with market prices
+  const calculateTotalBalance = () => {
+    const usdtValue = userdata.wallet.usdt || 0;
 
+    // Use market prices if available, otherwise use default values
+    const btcPrice = marketPrices?.BTC?.price || 45000;
+    const btcValue = (userdata.wallet.btc || 0) * btcPrice;
 
+    const ethPrice = marketPrices?.ETH?.price || 3000;
+    const ethValue = (userdata.wallet.eth || 0) * ethPrice;
+
+    const loanUsdtValue = userdata.wallet.loanUsdt || 0;
+
+    return usdtValue + btcValue + ethValue + loanUsdtValue;
+  };
+
+  // Calculate 24h change for total balance
+  const calculateTotalChange = () => {
+    const btcChange = marketPrices?.BTC?.change24h || 0;
+    const ethChange = marketPrices?.ETH?.change24h || 0;
+    const usdtChange = 0; // USDT is stablecoin, usually 0 change
+
+    // Calculate weighted average change based on portfolio composition
+    const totalBalance = calculateTotalBalance();
+    if (totalBalance === 0) return 0;
+
+    const btcBalance = (userdata.wallet.btc || 0) * (marketPrices?.BTC?.price || 45000);
+    const ethBalance = (userdata.wallet.eth || 0) * (marketPrices?.ETH?.price || 3000);
+    const usdtBalance = userdata.wallet.usdt || 0;
+
+    const weightedChange = (
+      (btcBalance * btcChange) +
+      (ethBalance * ethChange) +
+      (usdtBalance * usdtChange)
+    ) / totalBalance;
+
+    return weightedChange;
+  };
+
+  const totalBalance = calculateTotalBalance();
+  const totalChange = calculateTotalChange();
+  const totalChangeAmount = (totalBalance * totalChange) / 100;
+
+  const formatTimeAgo = (timestamp) => {
+    if (!timestamp) return "";
+    const now = new Date();
+    const updated = new Date(timestamp);
+    const diffInSeconds = Math.floor((now - updated) / 1000);
+
+    if (diffInSeconds < 60) return "Just now";
+    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
+    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
+    return `${Math.floor(diffInSeconds / 86400)}d ago`;
+  };
 
   const quickActions = [
     { icon: <ArrowDownCircle size={20} />, label: "Deposit", color: "text-blue-400" },
@@ -84,14 +159,14 @@ export default function ProfilePage() {
   ];
 
   return (
-    (loading ?
+    loading ? (
       <Loading text="Fetching your profile..." />
-      :
+    ) : (
       <div className="min-h-screen bg-gray-900 text-gray-100 mb-20">
         <MobileNav />
 
         {/* Header */}
-        <div className="hidden sm:block bg-gray-900  sticky top-0 z-50">
+        <div className="hidden sm:block bg-gray-900 sticky top-0 z-50">
           <div className="max-w-4xl mx-auto px-4 py-4">
             <div className="flex items-center justify-between">
               <button
@@ -101,12 +176,6 @@ export default function ProfilePage() {
                 <ChevronLeft size={20} />
                 <span className="font-medium">Back</span>
               </button>
-
-              {/* <h1 className="text-xl font-semibold text-white">Profile</h1>
-
-            <button className="p-2 hover:bg-gray-700 rounded-lg transition-colors">
-              <Bell size={20} className="text-gray-400" />
-            </button> */}
             </div>
           </div>
         </div>
@@ -120,13 +189,8 @@ export default function ProfilePage() {
               <div className="flex items-center gap-4">
                 <div className="relative">
                   <div className="w-16 h-16 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-300 text-2xl font-semibold border-2 border-gray-700">
-                    {userdata.name.trim()[0]}
+                    {userdata.name && userdata.name.trim()[0]}
                   </div>
-                  {/* {user.verified && (
-                  <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 rounded-full border-2 border-gray-800 flex items-center justify-center">
-                    <CheckCircle2 size={10} className="text-white" />
-                  </div>
-                )} */}
                 </div>
 
                 <div className="flex-1">
@@ -135,12 +199,7 @@ export default function ProfilePage() {
                   </div>
                   <p className="text-gray-400 text-sm mb-2">{userdata.email}</p>
                   <div className="flex items-center gap-3">
-                    {/* <span className="px-2 py-1 bg-blue-500/20 text-blue-300 text-xs font-medium rounded-full border border-blue-500/30">
-                    {user.tier} Tier
-                  </span> */}
-                    {/* <span className="text-gray-500 text-xs">
-                    Member since {user.memberSince}
-                  </span> */}
+                    {/* Optional: Add user tier or member since info here */}
                   </div>
                 </div>
               </div>
@@ -151,58 +210,87 @@ export default function ProfilePage() {
               <div className="flex justify-between items-center mb-6">
                 <div>
                   <h2 className="text-md font-bold text-white">Balance Overview</h2>
-                  {/* <p className="text-gray-400 text-sm">Total portfolio value</p> */}
+                  {marketPrices && lastUpdated && (
+                    <div className="flex items-center gap-2 mt-1">
+                      <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                      <p className="text-gray-400 text-xs">Live • Updated {formatTimeAgo(lastUpdated)}</p>
+                    </div>
+                  )}
                 </div>
-                <button
-                  onClick={() => setShowBalance(!showBalance)}
-                  className="flex items-center gap-2 px-3 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors text-sm font-medium text-gray-300"
-                >
-                  {showBalance ? <EyeOff size={16} /> : <Eye size={16} />}
-                  <span>{showBalance ? "Hide" : "Show"}</span>
-                </button>
+                <div className="flex items-center gap-2">
+                  {priceLoading && (
+                    <span className="text-xs text-gray-400">Refreshing...</span>
+                  )}
+                  <button
+                    onClick={() => setShowBalance(!showBalance)}
+                    className="flex items-center gap-2 px-3 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors text-sm font-medium text-gray-300"
+                  >
+                    {showBalance ? <EyeOff size={16} /> : <Eye size={16} />}
+                    <span>{showBalance ? "Hide" : "Show"}</span>
+                  </button>
+                </div>
               </div>
 
               {/* Total Balance */}
               <div className="bg-gray-700/50 rounded-lg p-4 mb-6 border border-gray-600">
-              <p className="text-gray-400 text-sm mb-1">Total Balance</p>
-              <div className="flex items-end justify-between">
-                <div>
-                  <p className="text-2xl font-bold text-white mb-1">
-                    {/* {showBalance ? `$${balances.total.toLocaleString()}` : "••••••"} */}
-                  </p>
-                  <div className="flex items-center gap-2">
-                    <span className="text-green-400 text-sm font-medium">
-                      {/* {showBalance ? balances.change : "••••"} */}
-                    </span>
-                    <span className="text-gray-500 text-sm">
-                      {/* {showBalance ? balances.changeAmount : "••••••"} */}
-                    </span>
+                <div className="flex justify-between items-start mb-1">
+                  <p className="text-gray-400 text-sm">Total Balance</p>
+                  {marketPrices && (
+                    <button
+                      onClick={getMarketPrices}
+                      disabled={priceLoading}
+                      className="text-xs text-blue-400 hover:text-blue-300 transition-colors disabled:opacity-50"
+                      title="Refresh prices"
+                    >
+                      {priceLoading ? "Refreshing..." : "Refresh"}
+                    </button>
+                  )}
+                </div>
+                <div className="flex items-end justify-between">
+                  <div>
+                    <p className="text-2xl font-bold text-white mb-1">
+                      {showBalance ? `$${totalBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : "••••••"}
+                    </p>
+                    <div className="flex items-center gap-2">
+                      {showBalance && marketPrices && totalChange !== 0 && (
+                        <>
+                          <span className={`text-sm font-medium ${totalChange >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                            {totalChange >= 0 ? '+' : ''}{totalChange.toFixed(2)}%
+                          </span>
+                          <span className={`text-sm ${totalChange >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                            {totalChange >= 0 ? '+' : ''}${Math.abs(totalChangeAmount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                          </span>
+                          <span className="text-gray-500 text-sm">
+                            (24h)
+                          </span>
+                        </>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
 
               {/* Balance Breakdown */}
-              {/* <div className="grid grid-cols-3 gap-4 mb-6">
-              <BalanceCard
-                label="Available"
-                value={balances.available}
-                showBalance={showBalance}
-                color="text-green-400"
-              />
-              <BalanceCard
-                label="Locked"
-                value={balances.locked}
-                showBalance={showBalance}
-                color="text-blue-400"
-              />
-              <BalanceCard
-                label="Loans"
-                value={5000}
-                showBalance={showBalance}
-                color="text-purple-400"
-              />
-            </div> */}
+              <div className="grid grid-cols-3 gap-4 mb-6">
+                <BalanceCard
+                  label="Available"
+                  value={userdata.wallet.usdt}
+                  showBalance={showBalance}
+                  color="text-green-400"
+                />
+                <BalanceCard
+                  label="Crypto"
+                  value={calculateTotalBalance() - userdata.wallet.usdt - userdata.wallet.loanUsdt}
+                  showBalance={showBalance}
+                  color="text-blue-400"
+                />
+                <BalanceCard
+                  label="Loans"
+                  value={userdata.wallet.loanUsdt}
+                  showBalance={showBalance}
+                  color="text-purple-400"
+                />
+              </div>
 
               {/* Wallet Assets */}
               <div className="pt-6 border-t border-gray-700">
@@ -214,39 +302,49 @@ export default function ProfilePage() {
                     showBalance={showBalance}
                     logo={assets.tether}
                     usdValue={userdata.wallet.usdt}
+                    price={1}
+                    change={0}
+                    marketPrices={marketPrices}
                   />
                   <AssetRow
                     currency="BTC"
                     balance={userdata.wallet.btc}
                     showBalance={showBalance}
                     logo={assets.bitcoin}
-                    usdValue={userdata.wallet.btc * 45000}
+                    usdValue={userdata.wallet.btc * (marketPrices?.BTC?.price || 45000)}
+                    price={marketPrices?.BTC?.price || 0}
+                    change={marketPrices?.BTC?.change24h || 0}
+                    marketPrices={marketPrices}
                   />
                   <AssetRow
                     currency="ETH"
                     balance={userdata.wallet.eth}
                     showBalance={showBalance}
                     logo={assets.ethereum}
-                    usdValue={userdata.wallet.eth * 3000}
+                    usdValue={userdata.wallet.eth * (marketPrices?.ETH?.price || 3000)}
+                    price={marketPrices?.ETH?.price || 0}
+                    change={marketPrices?.ETH?.change24h || 0}
+                    marketPrices={marketPrices}
                   />
 
-                  <h3 className="font-semibold text-white mb-4">Loan Assets</h3>
+                  <h3 className="font-semibold text-white mb-4 pt-4">Loan Assets</h3>
 
                   <AssetRow
-                    currency="USDT"
+                    currency="USDT Loan"
                     balance={userdata.wallet.loanUsdt}
                     showBalance={showBalance}
                     logo={assets.tether}
                     usdValue={userdata.wallet.loanUsdt}
+                    price={1}
+                    change={0}
+                    marketPrices={marketPrices}
                   />
-
-
                 </div>
               </div>
             </div>
 
             {/* Quick Actions */}
-            <div className="bg-gray-900 rounded-lg sm: border-gray-700 p-3 sm:p-6">
+            <div className="bg-gray-900 rounded-lg sm:border border-gray-700 p-3 sm:p-6">
               <h2 className="text-lg font-semibold text-white mb-4">Quick Actions</h2>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                 {quickActions.map((action, index) => (
@@ -264,7 +362,7 @@ export default function ProfilePage() {
             </div>
 
             {/* Account Management */}
-            <div className="bg-gray-00 rounded-lg sm:border border-gray-700 p-3 sm:p-6">
+            <div className="bg-gray-900 rounded-lg sm:border border-gray-700 p-3 sm:p-6">
               <h2 className="text-lg font-semibold text-white mb-4">Account</h2>
               <div className="space-y-3">
                 <SettingsCard
@@ -277,6 +375,15 @@ export default function ProfilePage() {
                   icon={<HelpCircle size={18} />}
                   label="Help & Support"
                   description="Get help with your account"
+                  onClick={() => {
+
+                      // Show and maximize chat
+                      if (window.Tawk_API) {
+                        window.Tawk_API.showWidget();
+                        window.Tawk_API.maximize();
+                      }
+
+                  }}
                 />
                 <SettingsCard
                   icon={<LogOut size={18} />}
@@ -284,12 +391,11 @@ export default function ProfilePage() {
                   description="Logout from your account"
                   danger
                   onClick={() => {
-                    localStorage.removeItem('token'),
-                      localStorage.removeItem('userData'),
-                      toast.info('Logout successfully'),
-                      navigate('/')
-                      window.location.reload()
-
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('userData');
+                    toast.info('Logout successfully');
+                    navigate('/');
+                    window.location.reload();
                   }}
                 />
               </div>
@@ -298,7 +404,6 @@ export default function ProfilePage() {
         </div>
       </div>
     )
-
   );
 }
 
@@ -307,15 +412,17 @@ function BalanceCard({ label, value, showBalance, color }) {
   return (
     <div className="bg-gray-700/50 rounded-lg p-4 border border-gray-600 text-center">
       <div className="text-gray-400 text-sm mb-2">{label}</div>
-      <div className={`font-semibold text-lg ${color}`}>
-        {showBalance ? `$${value.toLocaleString()}` : "••••"}
+      <div className={`font-semibold text-md ${color}`}>
+        {showBalance ? `$${value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : "••••"}
       </div>
     </div>
   );
 }
 
-// Component for asset rows
-function AssetRow({ currency, balance, showBalance, logo, usdValue }) {
+// Component for asset rows with market data
+function AssetRow({ currency, balance, showBalance, logo, usdValue, price, change, marketPrices }) {
+  const isStablecoin = currency === "USDT" || currency === "USDT Loan";
+
   return (
     <div className="flex items-center justify-between p-3 hover:bg-gray-700/50 rounded-lg transition-colors border border-transparent hover:border-gray-600">
       <div className="flex items-center gap-3">
@@ -327,14 +434,30 @@ function AssetRow({ currency, balance, showBalance, logo, usdValue }) {
         <div>
           <div className="font-medium text-white">{currency}</div>
           <div className="text-gray-400 text-sm">
-            {showBalance ? `${balance.toLocaleString()} ${currency}` : "••••"}
+            {showBalance ? `${parseFloat(balance).toLocaleString(undefined, { maximumFractionDigits: 8 })} ${currency.split(' ')[0]}` : "••••"}
           </div>
+          {showBalance && marketPrices && !isStablecoin && price > 0 && (
+            <div className="flex items-center gap-2 mt-1">
+              <span className="text-xs text-gray-500">
+                ${price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </span>
+              <span className={`text-xs ${change >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                {change >= 0 ? '+' : ''}{change?.toFixed(2)}%
+              </span>
+              <span className="text-gray-500 text-xs">(24h)</span>
+            </div>
+          )}
         </div>
       </div>
       <div className="text-right">
-        <div className="font-semibold text-white">
-          {showBalance ? `$${usdValue.toLocaleString(undefined, { maximumFractionDigits: 2 })}` : "••••••"}
+        <div className="font-semibold text-white mb-1">
+          {showBalance ? `$${parseFloat(usdValue).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : "••••••"}
         </div>
+        {showBalance && marketPrices && !isStablecoin && (
+          <div className="text-xs text-gray-400">
+            {parseFloat(balance).toFixed(6)} {currency.split(' ')[0]}
+          </div>
+        )}
       </div>
     </div>
   );
@@ -345,7 +468,7 @@ function ActionCard({ icon, label, color, onClick }) {
   return (
     <button
       onClick={onClick}
-      className="flex flex-col items-center p-4  hover:bg-gray-700 rounded-lg border border-gray-700 hover:border-gray-500 transition-colors group"
+      className="flex flex-col items-center p-4 hover:bg-gray-700 rounded-lg border border-gray-700 hover:border-gray-500 transition-colors group"
     >
       <div className={`mb-2 ${color}`}>
         {icon}
@@ -356,13 +479,12 @@ function ActionCard({ icon, label, color, onClick }) {
 }
 
 // Component for settings cards
-function SettingsCard({ icon, label, description, danger = false, onClick = () => {} }) {
+function SettingsCard({ icon, label, description, danger = false, onClick = () => { } }) {
   return (
     <button
       onClick={onClick}
-      className={`flex items-center gap-4 p-4 w-full text-left hover:bg-gray-700/50 rounded-lg border border-transparent hover:border-gray-600 transition-colors ${
-        danger ? "text-red-400 hover:text-red-300" : "text-gray-300"
-      }`}
+      className={`flex items-center gap-4 p-4 w-full text-left hover:bg-gray-700/50 rounded-lg border border-transparent hover:border-gray-600 transition-colors ${danger ? "text-red-400 hover:text-red-300" : "text-gray-300"
+        }`}
     >
       <div className={danger ? "text-red-500" : "text-gray-400"}>
         {icon}

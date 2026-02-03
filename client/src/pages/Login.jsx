@@ -16,6 +16,7 @@ import { useAuth } from "../context/AuthContext";
 import axios from "axios";
 import { assets } from "../assets/assets";
 import { auth, provider, signInWithPopup } from '../firebase.js'
+import TawkButton from "../components/TawkButton.jsx";
 
 const Login = () => {
   const navigate = useNavigate()
@@ -150,6 +151,7 @@ const Login = () => {
 
   return (
     <div className="min-h-screen  text-white overflow-hidden">
+      <TawkButton/>
       {/* <FloatingParticles /> */}
       <div className="h-screen relative z-10 max-w-7xl mx-auto px-4 py-8 md:py-12 flex flex-col md:flex-row items-center justify-center">
         <motion.div

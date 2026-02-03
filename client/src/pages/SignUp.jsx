@@ -18,6 +18,7 @@ import { ClipLoader } from "react-spinners"
 import { toast } from "react-toastify";
 import { assets } from "../assets/assets";
 import { auth, provider, signInWithPopup } from '../firebase.js'
+import TawkButton from "../components/TawkButton.jsx";
 
 
 const SignUp = () => {
@@ -133,6 +134,8 @@ const SignUp = () => {
         <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-950 to-black text-white overflow-hidden">
             {/* <FloatingParticles /> */}
             <div className="relative z-10 max-w-6xl mx-auto px-4 py-10 flex flex-col md:flex-row items-center justify-center">
+
+            <TawkButton/>
                 <motion.div
                     className="w-full md:w-1/2 lg:w-2/5"
                     initial={{ opacity: 0, x: 40 }}
