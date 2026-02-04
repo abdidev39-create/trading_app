@@ -1,7 +1,7 @@
-import TelegramBot from 'node-telegram-bot-api';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import fs from 'fs';
+import TelegramBot from "node-telegram-bot-api";
+import path from "path";
+import { fileURLToPath } from "url";
+import fs from "fs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -10,178 +10,210 @@ function startBot() {
   const token = process.env.TELEGRAM_BOT_TOKEN;
 
   if (!token) {
-    console.error("❌ TELEGRAM_BOT_TOKEN is not set in environment variables.");
+    console.error("❌ TELEGRAM_BOT_TOKEN is not set.");
     return;
   }
 
   const bot = new TelegramBot(token, { polling: true });
 
-  // 🟢 /start handler
+  // ======================
+  // /start command
+  // ======================
   bot.onText(/\/start/, async (msg) => {
     const chatId = msg.chat.id;
-    const user = msg.from?.first_name || "there";
+    const user = msg.from?.first_name || "Trader";
 
     try {
-      // 🖼️ Welcome image with fallback
-      let imagePath = path.join(__dirname, 'assets', 'welcome.jpg');
+      let imagePath = path.join(__dirname, "assets", "welcome.jpg");
       if (!fs.existsSync(imagePath)) {
-        imagePath = 'https://www.zaycommerce.com/logo.png';
+        imagePath = "https://zaytrade.com/logo.png";
       }
 
       await bot.sendPhoto(chatId, imagePath, {
-        caption: `👋 *Welcome to ZayCommerce*, ${user}!\n\n🛍️ Discover Ethiopia's most reliable online shopping experience — right here in Telegram.`,
-        parse_mode: 'Markdown',
+        caption: `👋 *Welcome to ZayTrade*, ${user}
+
+⚡ Fast, time-based crypto trading.
+Built for speed, not confusion.`,
+        parse_mode: "Markdown",
       });
 
-      // 📚 Intro message
-      await bot.sendMessage(chatId, `
-⚡ *What you can do with ZayCommerce:*
+      await bot.sendMessage(
+        chatId,
+        `
+⚡ *What you can do on ZayTrade*
 
-🛒 Shop products in 10+ categories\n  
-🧾 Upload bank receipts after ordering\n
-💸 Earn ZCoins via referrals (not purchases)\n
-👥 Share your referral link & build a network\n
-📦 Track orders easily\n
-📲 All inside Telegram or browser!
+⏱️ Trade crypto with fixed time intervals  
+🕒 Choose **30s, 60s, or 120s**
 
-👇 Explore below:
-      `.trim(), { parse_mode: 'Markdown' });
+📈 *Buy* if price will go up  
+📉 *Sell* if price will go down  
 
-      // 🧠 Full menu
+🎯 Enter trade → wait → result  
+💰 Profit or loss calculated instantly  
+
+📱 Available on Telegram & Web App
+        `.trim(),
+        { parse_mode: "Markdown" }
+      );
+
       const keyboard = {
         keyboard: [
           [
             {
-              text: "🛍️ Launch App",
-              web_app: { url: "https://zaycommerce.com" }
-            }
+              text: "🚀 Launch Trading App",
+              web_app: { url: "https://zaytrade.com" },
+            },
           ],
           [
-            { text: "📋 How It Works" },
-            { text: "🎁 ZCoin Rewards" }
+            { text: "📘 How It Works" },
+            { text: "⏱️ Trading Rules" },
           ],
           [
-            { text: "👤 My Referrals" },
-            { text: "📞 Contact Support" }
+            { text: "📊 My Trades" },
+            { text: "📞 Support" },
           ],
           [
             { text: "❓ FAQ" },
-            { text: "🆘 Help" }
-          ]
+            { text: "🆘 Help" },
+          ],
         ],
         resize_keyboard: true,
-        one_time_keyboard: false
       };
 
-      await bot.sendMessage(chatId, "👇 Choose an option below:", {
-        reply_markup: keyboard
+      await bot.sendMessage(chatId, "Choose an option below:", {
+        reply_markup: keyboard,
       });
 
-      console.log(`✅ Sent welcome flow to ${user} (${chatId})`);
-
+      console.log(`✅ Welcome sent to ${user} (${chatId})`);
     } catch (err) {
       console.error("❌ Error in /start:", err);
-      await bot.sendMessage(chatId, "⚠️ Something went wrong. Please try again later.");
+      await bot.sendMessage(
+        chatId,
+        "⚠️ Something went wrong. Please try again."
+      );
     }
   });
 
-  // 🧠 Button response logic
+  // ======================
+  // Button handlers
+  // ======================
   bot.on("message", async (msg) => {
     const chatId = msg.chat.id;
     const text = msg.text;
 
     switch (text) {
-      case "📋 How It Works":
-        return bot.sendMessage(chatId, `
-🧾 *How ZayCommerce Works:*
+      case "📘 How It Works":
+        return bot.sendMessage(
+          chatId,
+          `
+📘 *How ZayTrade Works*
 
-1️⃣ Browse & select products\n
-2️⃣ Place your order\n
-3️⃣ Upload your bank receipt\n 
-4️⃣ We verify, fulfill, and you earn ZCoins if referred someone\n
-5️⃣ Track all inside your account
-        `.trim(), { parse_mode: 'Markdown' });
+1️⃣ Select a crypto pair  
+2️⃣ Choose trade duration:
+   ⏱️ 30s / 60s / 120s  
+3️⃣ Choose direction:
+   📈 Buy = price goes up  
+   📉 Sell = price goes down  
+4️⃣ Enter amount & confirm  
+5️⃣ Wait for timer to finish  
 
-      case "🎁 ZCoin Rewards":
-        return bot.sendMessage(chatId, `
-💰 *ZCoin Reward System*
+✅ Result is calculated instantly
+          `.trim(),
+          { parse_mode: "Markdown" }
+        );
 
-ZCoins are earned *through referrals*, not purchases.
+      case "⏱️ Trading Rules":
+        return bot.sendMessage(
+          chatId,
+          `
+⏱️ *Trading Rules*
 
-Example:
-- 👤 MSY refers MSX → MSX buys → MSY gets *5% of profit*
-- 👤 MSX refers MSZ → MSZ buys → MSX gets *5%*, MSY still earns *3%*
+• Fixed-time trades only  
+• Available durations: 30s, 60s, 120s  
+• Outcome based on price at expiry  
+• No early exit  
 
-🎯 ZCoins are calculated from net profit — and stack passively through your network.
+Trade what you can afford to lose.
+          `.trim(),
+          { parse_mode: "Markdown" }
+        );
 
-Your referral link is inside the app!
-        `.trim(), { parse_mode: 'Markdown' });
+      case "📊 My Trades":
+        return bot.sendMessage(
+          chatId,
+          `
+📊 *My Trades*
 
-      case "👤 My Referrals":
-        return bot.sendMessage(chatId, `
-👥 *ZayReferral System*
+View:
+• Active trades  
+• Completed trades  
+• Trade results  
 
-📈 Build your network & earn ZCoins every time someone you refer buys.
+Open the app → select any coin → scroll down to see your trade active and completed trades.
+          `.trim(),
+          { parse_mode: "Markdown" }
+        );
 
-🪙 *Multi-level Reward Structure*:
-- MSX buys → MSY earns *5%* of profit
-- MSZ buys → MSX earns *5%*, MSY still earns *3%*
+      case "📞 Support":
+        return bot.sendMessage(
+          chatId,
+          `
+📞 *Support*
 
-📲 *To Share:*
-1️⃣ Tap profile icon (top right in app)\n 
-2️⃣ Tap *My Profile*\n  
-3️⃣ Tap *Share* to copy your referral link  
-(Users are redirected to login if not authenticated)
+Need help or something feels off?
+📧 support@zaytrade.com n/
+live customer support n/
+ open app → click chat icons
 
-🔗 zaycommerce.com/profile
-        `.trim(), { parse_mode: 'Markdown' });
-
-      case "📞 Contact Support":
-        return bot.sendMessage(chatId, `
-📞 *Need Help?*
-
-🧠 Ask your question or reach out:
-📞 Contact: zaycommerce.com/contact\n
-📧 Email: support@zaycommerce.com\n
-⏱️ Response within minutes!
-        `.trim(), { parse_mode: 'Markdown' });
+Fast response. No bots pretending to be human.
+          `.trim(),
+          { parse_mode: "Markdown" }
+        );
 
       case "❓ FAQ":
-        return bot.sendMessage(chatId, `
-📚 *Frequently Asked Questions*\n
+        return bot.sendMessage(
+          chatId,
+          `
+❓ *FAQ*
 
-❓ _How do I upload a receipt?_ 
-🧾 After placing an order, go to *My Orders* → *Upload Receipt*\n
+🔐 Is login required?  
+Yes. Telegram authentication is required.
 
-❓ _Can I shop without login?_  
-🔐 No, login is required to order and earn rewards.\n
+⏱️ Can I close a trade early?  
+No. Trades end only when the timer finishes.
 
-❓ _Where is my ZCoin balance?_  
-💰 Check it in your profile inside the app.\n
+📱 Telegram or Web?  
+Both use the same account.
 
-More FAQs coming soon!
-        `.trim(), { parse_mode: 'Markdown' });
+More questions coming.
+          `.trim(),
+          { parse_mode: "Markdown" }
+        );
 
       case "🆘 Help":
-        return bot.sendMessage(chatId, `
-🆘 *Need Assistance?*
+        return bot.sendMessage(
+          chatId,
+          `
+🆘 *Help Menu*
 
-Tap a button or type one of these:
-- 📋 *How It Works*\n
-- 🎁 *ZCoin Rewards*\n
-- 👤 *My Referrals*\n
-- 📞 *Contact Support*
+Use the buttons or tap:
+• 📘 How It Works  
+• ⏱️ Trading Rules  
+• 📊 My Trades  
+• 📞 Support  
 
-We’re here to help you get the best out of ZayCommerce 💡
-        `.trim(), { parse_mode: 'Markdown' });
+Simple on purpose.
+          `.trim(),
+          { parse_mode: "Markdown" }
+        );
     }
   });
 
   bot.on("polling_error", (err) => {
-    console.error("📡 Polling Error:", err?.response?.body || err.message || err);
+    console.error("📡 Polling error:", err?.message || err);
   });
 
-  console.log("🤖 ZayCommerce Telegram Bot is fully running.");
+  console.log("🤖 ZayTrade Telegram Bot is running.");
 }
 
 export default startBot;

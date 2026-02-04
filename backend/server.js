@@ -8,7 +8,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import history from "connect-history-api-fallback";
 import connectToMongoDB from "./config/mongodb.js";
-
+import { startBot } from "./bot/index.js";
 // Routes
 import userRouter from "./routes/userRoutes.js";
 import newsRouter from "./routes/newsRoutes.js";
@@ -38,7 +38,8 @@ const app = express();
 const allow = [
   "http://localhost:5173",
   //"https://trading-platform-qfig.onrender.com/",
-  "https://trading-app-fdzj.onrender.com/"
+  "https://trading-app-fdzj.onrender.com/",
+  "https://www.zaytrade.com/"
 ];
 
 app.use(cors({ origin: allow, credentials: true }));
@@ -48,6 +49,7 @@ app.use(cookieParser());
 
 /* ---------- DB ---------- */
 connectToMongoDB();
+startBot();
 
 /* ---------- Server & Socket ---------- */
 const server = http.createServer(app);
