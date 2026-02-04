@@ -15,9 +15,9 @@ import binancecoin from './binance.svg';
 import dogecoin from './dogs.svg';
 import ripple from './xrp.svg';
 import hero from './hero.jpg';
-import hero1 from './hero1.png';
-import hero2 from './hero2.png';
-import hero3 from './hero3.png';
+import hero1 from './hero1.jpg';
+import hero2 from './hero2.jpg';
+import hero3 from './hero3.jpg';
 
 
 
