@@ -3,8 +3,8 @@ import path from "path";
 import { fileURLToPath } from "url";
 import fs from "fs";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+//const __filename = fileURLToPath(import.meta.url);
+//const __dirname = path.dirname(__filename);
 
 function startBot() {
   const token = process.env.TELEGRAM_BOT_TOKEN;
@@ -24,10 +24,12 @@ function startBot() {
     const user = msg.from?.first_name || "Trader";
 
     try {
-      let imagePath = path.join(__dirname, "assets", "welcome.jpg");
-      if (!fs.existsSync(imagePath)) {
-        imagePath = "https://zaytrade.com/logo.png";
-      }
+
+      let  imagePath = "https://www.zaytrade.com/assets/logo-r9W9um86.png";
+     // let imagePath = path.join(__dirname, "assets", "welcome.jpg");
+      //if (!fs.existsSync(imagePath)) {
+     //   imagePath = "https://www.zaytrade.com/assets/logo-r9W9um86.png";
+     // }
 
       await bot.sendPhoto(chatId, imagePath, {
         caption: `👋 *Welcome to ZayTrade*, ${user}
