@@ -8,7 +8,8 @@ import path from "path";
 import { fileURLToPath } from "url";
 import history from "connect-history-api-fallback";
 import connectToMongoDB from "./config/mongodb.js";
-import { startBot } from "./bot/index.js";
+//import { startBot } from "./bot/index.js";
+import startBot from "./bot/index.js";
 // Routes
 import userRouter from "./routes/userRoutes.js";
 import newsRouter from "./routes/newsRoutes.js";
