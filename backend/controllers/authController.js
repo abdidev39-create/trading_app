@@ -39,13 +39,15 @@ export const register = async (req, res) => {
       verifyOtp: otp,
       verifyOtpExpireAt: Date.now() + 15 * 60 * 1000
     });
-      await sendOtpEmail(otp, name, email)
+      
 
     return res.json({
       success: true,
       message: "Verify your account",
       userEmail: email
     });
+
+    await sendOtpEmail(otp, name, email)
 
   } catch (error) {
     console.error("Registration error:", error);
@@ -121,8 +123,9 @@ export const reSend = async (req, res) => {
     user.verifyOtp = otp
     user.verifyOtpExpireAt = Date.now() + 12 * 60 * 1000
     await user.save()
-      await sendOtpEmail(otp, user.name, user.email)
+     
     res.json({ success: true, message: 'otp is resend check your email' })
+     await sendOtpEmail(otp, user.name, user.email)
   } catch (er) {
     res.send({
       success: false, message: er.message
@@ -255,11 +258,13 @@ export const sendResetOtp = async (req, res) => {
     await user.save()
     console.log(otp, user.name, user.email)
     /// await RestEmail(otp, user.name, user.email)
-    await RestEmail(otp, user.name, user.email)
+
 
     res.json({
       success: true, message: 'reset otp is send check your email'
     })
+
+        await RestEmail(otp, user.name, user.email)
 
   } catch (error) {
     console.log(error)
@@ -399,8 +404,9 @@ export const reSendResetOtp = async (req, res) => {
     user.resetOtp = otp;
     user.resetOtpExpireAt = Date.now() + 45 * 60 * 1000; // 45 min
     await user.save()
-    await RestEmail(otp, user.name, email)
+
     res.json({ success: true, message: 'Reset otp is resend check your email' })
+        await RestEmail(otp, user.name, email)
   } catch (er) {
     res.send({
       success: false, message: er.message
