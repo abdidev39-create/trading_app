@@ -45,7 +45,7 @@ const Header = () => {
 
     { name: 'News', href: '#live', featured: true, icon: <TrendingUp className="w-4 h-4" /> },
     { name: 'wallet', href: '#wallet', icon: <Wallet className="w-4 h-4" /> },
-    { name: 'Loans', href: '#loan', icon: <PiggyBank className="w-4 h-4" /> },
+    { name: 'loan', href: '#loan', icon: <PiggyBank className="w-4 h-4" /> },
     { name: 'Profile', href: '#profile', icon: <User className="w-4 h-4" /> },
   ];
 

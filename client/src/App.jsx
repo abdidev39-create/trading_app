@@ -59,7 +59,7 @@ const App = () => {
           <Route path="/admin" element={userRole ? <AdminHome /> : <N404/>} />
           <Route path="/loan-payment" element={<LoanPayment />} />
           <Route path="/dashboard/notifications" element={<NotificationCenter/>} />
-          <Route path="/wallet" element={<WalletPage/>} />
+          <Route path="/wallet" element={token?<WalletPage/> : <SignUp/>} />
           <Route path="*" element={<N404 />} />
 
 
