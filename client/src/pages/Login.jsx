@@ -160,7 +160,7 @@ const Login = () => {
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
         >
-          <div className="bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-800 rounded-2xl p-5 shadow-xl">
+          <div className="bg-gradient-to-br sm:from-gray-800 to-gray-900 sm:border sm:border-gray-800 sm:rounded-2xl p-3 sm:p-5 shadow-xl">
             <div className="text-center mb-5">
               <motion.div
                 className="inline-flex items-center px-3 py-1.5 rounded-full bg-blue-500/10 text-blue-400 text-xs font-medium mb-3"
@@ -171,8 +171,8 @@ const Login = () => {
                 <Lock size={16} className="mr-2" />
                 SECURE LOGIN
               </motion.div>
-              {/* <h1 className="text-xl font-semibold mb-1">Welcome Back</h1> */}
-              {/* <p className="text-gray-400 text-sm">Sign in to access your account</p> */}
+              <h1 className="text-xl font-semibold mb-1">Welcome Back</h1>
+               <p className="text-gray-400 text-sm">Sign in to access your account</p> 
             </div>
 
             <form onSubmit={handleSubmit}>
@@ -191,7 +191,7 @@ const Login = () => {
                     </div>
                     <input
                       type="email"
-                      className="w-full pl-10 pr-4 py-2.5 bg-gray-900 border border-gray-800 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition"
+                      className="w-full pl-10 pr-4 py-3 bg-gray-900 border border-gray-700 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition"
                       placeholder="your@email.com"
                       required
                       onChange={e => setEmail(e.target.value)}
@@ -211,7 +211,7 @@ const Login = () => {
                   </div>
                   <input
                     type={showPassword ? "text" : "password"}
-                    className="w-full pl-10 pr-10 py-2.5 bg-gray-900 border border-gray-800 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition"
+                    className="w-full pl-10 pr-10 py-3 bg-gray-900 border border-gray-700 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition"
                     placeholder="••••••••"
                     required
                     onChange={e => setPas(e.target.value)}
@@ -248,7 +248,7 @@ const Login = () => {
               </div>
 
               <motion.button
-                className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold py-2.5 rounded-lg flex items-center justify-center transition-all duration-300 shadow-md shadow-blue-500/20 hover:shadow-blue-500/30 mb-5"
+                className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold py-3 rounded-lg flex items-center justify-center transition-all duration-300 shadow-md shadow-blue-500/20 hover:shadow-blue-500/30 mb-5"
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
 

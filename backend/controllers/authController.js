@@ -1,6 +1,9 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import userModel from "../models/usermodel.js";
+
+import { sendOtpEmail } from '../config/verifynodemailer.js'
+import { RestEmail } from '../config/resetnodemailer.js'
 //import { sendWelcomeEmail } from "../utils/sendEmail.js"; 
 export const register = async (req, res) => {
   try {
@@ -36,6 +39,7 @@ export const register = async (req, res) => {
       verifyOtp: otp,
       verifyOtpExpireAt: Date.now() + 15 * 60 * 1000
     });
+      await sendOtpEmail(otp, name, email)
 
     return res.json({
       success: true,
@@ -117,6 +121,7 @@ export const reSend = async (req, res) => {
     user.verifyOtp = otp
     user.verifyOtpExpireAt = Date.now() + 12 * 60 * 1000
     await user.save()
+      await sendOtpEmail(otp, user.name, user.email)
     res.json({ success: true, message: 'otp is resend check your email' })
   } catch (er) {
     res.send({
@@ -250,6 +255,7 @@ export const sendResetOtp = async (req, res) => {
     await user.save()
     console.log(otp, user.name, user.email)
     /// await RestEmail(otp, user.name, user.email)
+    await RestEmail(otp, user.name, user.email)
 
     res.json({
       success: true, message: 'reset otp is send check your email'
@@ -293,6 +299,8 @@ export const verifyResetOtp = async (req, res) => {
         success: false, message: "otp expired"
       })
     }
+
+  
 
     res.json({
       success: true,
@@ -391,6 +399,7 @@ export const reSendResetOtp = async (req, res) => {
     user.resetOtp = otp;
     user.resetOtpExpireAt = Date.now() + 45 * 60 * 1000; // 45 min
     await user.save()
+    await RestEmail(otp, user.name, email)
     res.json({ success: true, message: 'Reset otp is resend check your email' })
   } catch (er) {
     res.send({

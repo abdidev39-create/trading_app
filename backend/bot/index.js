@@ -25,7 +25,7 @@ function startBot() {
 
     try {
 
-      let  imagePath = "https://www.zaytrade.com/assets/logo-r9W9um86.png";
+      let  imagePath = "https://www.zaytrade.com/assets/logo.png";
      // let imagePath = path.join(__dirname, "assets", "welcome.jpg");
       //if (!fs.existsSync(imagePath)) {
      //   imagePath = "https://www.zaytrade.com/assets/logo-r9W9um86.png";

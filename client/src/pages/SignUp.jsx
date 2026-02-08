@@ -142,7 +142,7 @@ const SignUp = () => {
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.6, delay: 0.2 }}
                 >
-                    <div className="bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-800 rounded-2xl p-5 shadow-lg">
+                    <div className="bg-gradient-to-br sm:from-gray-800 sm:to-gray-900 sm:border sm:border-gray-800 rounded-2xl p-3 sm:p-5 shadow-lg">
                         <div className="text-center mb-6">
                             <motion.div
                                 className="inline-flex items-center px-3 py-1 rounded-full bg-blue-500/10 text-blue-400 text-xs font-medium mb-3"
@@ -169,10 +169,10 @@ const SignUp = () => {
                                         <input
                                             name="firstName"
                                             type="text"
-                                            placeholder=""
+                                            placeholder="Enter your first name"
                                             value={formData.firstName}
                                             onChange={handleChange}
-                                            className="w-full py-2.5 pl-10 pr-4 bg-gray-900 border border-gray-800 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-sm"
+                                            className="w-full py-3 pl-10 pr-4 bg-gray-900 border border-gray-800 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-sm"
                                             required
                                             autoComplete="firstName"
                                         />
@@ -186,10 +186,10 @@ const SignUp = () => {
                                         <input
                                             name="lastName"
                                             type="text"
-                                            placeholder=""
+                                            placeholder="Enter your last name"
                                             value={formData.lastName}
                                             onChange={handleChange}
-                                            className="w-full py-2.5 pl-10 pr-4 bg-gray-900 border border-gray-800 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-sm"
+                                            className="w-full py-3 pl-10 pr-4 bg-gray-900 border border-gray-800 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-sm"
                                             required
                                             autoComplete="lastName"
 
@@ -209,10 +209,10 @@ const SignUp = () => {
                                     <input
                                         type="email"
                                         name="email"
-                                        placeholder="your@email.com"
+                                        placeholder="Enter your email address"
                                         value={formData.email}
                                         onChange={handleChange}
-                                        className="w-full py-2.5 pl-10 pr-4 bg-gray-900 border border-gray-800 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-sm"
+                                        className="w-full py-3 pl-10 pr-4 bg-gray-900 border border-gray-800 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-sm"
                                         autoComplete="email"
                                         required
                                     />
@@ -233,7 +233,7 @@ const SignUp = () => {
                                         type={showPassword ? "text" : "password"}
                                         onChange={handleChange}
                                         placeholder="••••••••"
-                                        className="w-full py-2.5 pl-10 pr-10 bg-gray-900 border border-gray-800 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-sm"
+                                        className="w-full py-3 pl-10 pr-10 bg-gray-900 border border-gray-800 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-sm"
                                         autoComplete="password"
                                         required
                                     />
@@ -250,7 +250,7 @@ const SignUp = () => {
                             <motion.button
                                 disabled={loading}
                                 type="submit"
-                                className="w-full bg-blue-500  hover:to-blue-700 text-white font-medium py-2.5 rounded-lg flex items-center justify-center transition-all shadow-md mb-5"
+                                className="w-full bg-blue-500  hover:to-blue-700 text-white font-medium py-3 mt-4 rounded-lg flex items-center justify-center transition-all shadow-md mb-5"
                                 whileHover={{ scale: 1.02 }}
                                 whileTap={{ scale: 0.97 }}
                             >

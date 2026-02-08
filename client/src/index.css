@@ -189,18 +189,3 @@ html {
 }
 
 
-/* Add to your global/tailwind CSS */
-@media (max-height: 700px) {
-  .mobile-nav-compact .tab-button {
-    min-height: 52px;
-    padding-top: 0.5rem;
-    padding-bottom: 0.5rem;
-  }
-}
-
-/* For very small phones */
-@media (max-width: 320px) {
-  .mobile-nav {
-    font-size: 0.75rem;
-  }
-}

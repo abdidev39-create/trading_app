@@ -162,11 +162,11 @@ export default function ProfilePage() {
     loading ? (
       <Loading text="Fetching your profile..." />
     ) : (
-      <div className="min-h-screen bg-gray-900 text-gray-100 mb-20">
+      <div className="min-h-screen bg-gray-900 text-gray-100 mb-20 ">
         <MobileNav />
 
         {/* Header */}
-        <div className="hidden sm:block bg-gray-900 sticky top-0 z-50">
+        <div className=" sm:block bg-gray-900 sticky top-0 z-50">
           <div className="max-w-4xl mx-auto px-4 py-4">
             <div className="flex items-center justify-between">
               <button

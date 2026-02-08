@@ -5,68 +5,128 @@ export default function MobileNav() {
   const navigate = useNavigate();
   const { pathname } = useLocation();
 
-  // Navigation items configuration for easier management
-  const navItems = [
-    { path: "/", icon: <Home size={22} />, label: "Home" },
-    { path: "/news", icon: <Megaphone size={22} />, label: "News" },
-    { path: "/wallet", icon: <Wallet size={22} />, label: "Wallet" },
-    { path: "/loan", icon: <PiggyBank size={22} />, label: "Loans" },
-    { path: "/profile", icon: <User size={22} />, label: "Profile" },
+  const tabs = [
+    { icon: <Home size={18} />, label: "Home", path: "/" },
+    { icon: <Wallet size={18} />, label: "Wallet", path: "/wallet" },
+    { 
+      icon: <Megaphone size={22} />, 
+      label: "News", 
+      path: "/news", 
+      isCenter: true 
+    },
+    { icon: <PiggyBank size={18} />, label: "Loans", path: "/loan" },
+    { icon: <User size={18} />, label: "Profile", path: "/profile" },
   ];
 
   return (
-    <>
-      {/* Spacer to prevent content from being hidden behind navbar */}
-      <div className="h-20 md:hidden" />
-      
-      <nav className="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-gray-900/95 backdrop-blur-xl rounded-2xl border border-gray-700/80 shadow-2xl shadow-black/40 flex justify-around items-center py-2.5 w-[calc(100%-2rem)] max-w-md md:hidden z-50">
-        {navItems.map((item) => (
-          <Tab
-            key={item.path}
-            icon={item.icon}
-            label={item.label}
-            active={pathname === item.path}
-            onClick={() => navigate(item.path)}
-          />
-        ))}
-      </nav>
-    </>
+    <nav
+      className="fixed inset-x-0 bottom-0 bg-gray-900/95 backdrop-blur-xl supports-[backdrop-filter]:bg-gray-900/80 border-t border-gray-700 shadow-[0_-4px_20px_rgba(0,0,0,0.3)] flex justify-between items-center py-3 px-4 md:hidden z-50 safe-bottom"
+      aria-label="Main navigation"
+    >
+      {tabs.map((tab) => (
+        <Tab
+          key={tab.path}
+          icon={tab.icon}
+          label={tab.label}
+          active={pathname === tab.path}
+          onClick={() => navigate(tab.path)}
+          isCenter={tab.isCenter}
+        />
+      ))}
+    </nav>
   );
 }
 
-function Tab({ icon, label, active, onClick }) {
+function Tab({ icon, label, active, onClick, isCenter }) {
+  if (isCenter) {
+    return (
+      <button
+        onClick={onClick}
+        className={`relative flex flex-col items-center justify-center gap-1 px-4 py-3 rounded-[20px] transition-all duration-300 ease-out flex-1 min-w-0 mx-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 ${
+          active
+            ? "text-white bg-blue-500 shadow-xl shadow-blue-500/30 border-2 border-blue-400"
+            : "text-white bg-blue-600 hover:bg-blue-500 shadow-lg border-2 border-blue-500/50"
+        }`}
+        aria-current={active ? "page" : undefined}
+        aria-label={label}
+      >
+        <div
+          className={`transition-transform duration-300 ${
+            active ? "scale-125" : "scale-100"
+          }`}
+          aria-hidden="true"
+        >
+          {icon}
+        </div>
+
+        <span
+          className={`text-xs font-semibold truncate max-w-full transition-all duration-300 ${
+            active ? "text-white" : "text-white/90"
+          }`}
+        >
+          {label}
+        </span>
+
+        {/* Active indicator */}
+        {active && (
+          <div
+            className="absolute -top-1.5 w-2.5 h-2.5 bg-white rounded-full animate-pulse ring-1 ring-blue-400"
+            aria-hidden="true"
+          />
+        )}
+
+        {/* Glow effect */}
+        <div
+          className="absolute inset-0 rounded-[20px] bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300"
+          aria-hidden="true"
+        />
+      </button>
+    );
+  }
+
+  // Regular tabs - smaller
   return (
     <button
       onClick={onClick}
-      className={`relative flex flex-col items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl transition-all duration-250 ease-out flex-1 min-h-[60px] mx-0.5 active:scale-95 ${
+      className={`relative flex flex-col items-center justify-center gap-0.5 px-2 py-1.5 rounded-lg transition-all duration-200 ease-out flex-1 min-w-0 mx-0.5 focus:outline-none focus-visible:ring-1 focus-visible:ring-blue-500 focus-visible:ring-offset-1 focus-visible:ring-offset-gray-900 ${
         active
-          ? "text-blue-400 bg-gradient-to-b from-blue-500/15 to-blue-500/5 border border-blue-500/30"
-          : "text-gray-400 hover:text-gray-200 hover:bg-gray-800/50 active:bg-gray-800/70"
+          ? "text-blue-400 bg-blue-500/10"
+          : "text-gray-400 hover:text-gray-300 hover:bg-gray-800/20"
       }`}
       aria-current={active ? "page" : undefined}
+      aria-label={label}
     >
       <div
-        className={`transition-all duration-300 ${
-          active ? "scale-110 translate-y-[-2px]" : "scale-100"
+        className={`transition-transform duration-200 ${
+          active ? "scale-105" : "scale-100"
         }`}
+        aria-hidden="true"
       >
         {icon}
       </div>
-      
+
       <span
-        className={`text-[10px] font-semibold tracking-wide transition-all duration-300 ${
-          active ? "opacity-100 translate-y-0" : "opacity-80"
+        className={`text-[11px] font-medium truncate max-w-full transition-all duration-200 ${
+          active ? "text-blue-400" : ""
         }`}
       >
         {label}
       </span>
-      
+
       {/* Active indicator */}
       {active && (
-        <>
-          <div className="absolute top-1.5 w-1.5 h-1.5 bg-blue-400 rounded-full animate-pulse" />
-          <div className="absolute -bottom-2 w-8 h-0.5 bg-gradient-to-r from-blue-400 to-blue-300 rounded-full" />
-        </>
+        <div
+          className="absolute -top-1 w-1.5 h-1.5 bg-blue-400 rounded-full"
+          aria-hidden="true"
+        />
+      )}
+
+      {/* Subtle hover effect */}
+      {!active && (
+        <div
+          className="absolute inset-0 rounded-lg bg-gradient-to-t from-gray-700/0 to-gray-700/0 hover:from-gray-700/10 hover:to-gray-700/0 transition-all duration-200"
+          aria-hidden="true"
+        />
       )}
     </button>
   );
