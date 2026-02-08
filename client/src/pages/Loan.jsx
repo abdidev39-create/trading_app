@@ -12,7 +12,7 @@ const LOAN_PACKAGES = [
     title: "Starter Boost",
     interest: 4,
     maxAmount: 1000,
-    duration: 7,
+    duration: 3,
     desc: "A small liquidity push for new users who want to test short-term crypto predictions.",
     features: [
       "Instant Auto-Approval",
@@ -93,7 +93,9 @@ export default function LoanPackages() {
   const [amount, setAmount] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const { backendUrl, token } = useAuth()
+  const { token ,backendUrl} = useAuth()
+
+ // const backendUrl = 'http://localhost:3000/'
 
   const navigate = useNavigate()
 

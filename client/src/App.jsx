@@ -25,6 +25,7 @@ const AdminHome = lazy(() => import("./admin/page/AdminHome.jsx"));
 import KYCVerificationPopup from './components/KYCVerificationPopup.jsx';
 const LoanPayment = lazy(() => import("./pages/LoanPayment.jsx"));
 const NotificationCenter = lazy(() => import("./pages/NotificationCenter.jsx"));
+const WalletPage = lazy(() => import("./pages/WalletPage.jsx"));
 
 
 
@@ -58,7 +59,9 @@ const App = () => {
           <Route path="/admin" element={userRole ? <AdminHome /> : <N404/>} />
           <Route path="/loan-payment" element={<LoanPayment />} />
           <Route path="/dashboard/notifications" element={<NotificationCenter/>} />
+          <Route path="/wallet" element={<WalletPage/>} />
           <Route path="*" element={<N404 />} />
+
 
 
 

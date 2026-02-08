@@ -6,6 +6,7 @@ import AnimatedDescription from "../reset-password-components/AnimatedDescriptio
 import StepOne from "../reset-password-components/StepOne";
 import StepTwo from "../reset-password-components/StepTwo";
 import StepThree from "../reset-password-components/StepThree";
+import { Helmet } from "react-helmet-async";
 export default function ResetPasswordPage() {
   const [step, setStep] = useState(1); // 1: email, 2: OTP, 3: reset password
   const [email, setEmail] = useState("");

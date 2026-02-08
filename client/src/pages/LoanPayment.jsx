@@ -20,7 +20,8 @@ import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 // API configuration
-const API_URL = 'https://trading-app-fdzj.onrender.com/api';
+//const API_URL = 'https://trading-app-fdzj.onrender.com/api';
+const API_URL = 'http://localhost:3000/api';
 
 // Create axios instance
 const api = axios.create({
@@ -369,7 +370,8 @@ export default function LoanPayment() {
                 )[0];
                 
                 if (balances[highestCurrency] > 0) {
-                    setSelectedDepositCurrency(highestCurrency);
+                    /// i want i make this for now by deault  not highestCurrency
+                    setSelectedDepositCurrency('USDT');
                 }
             }
         } catch (error) {
@@ -794,8 +796,16 @@ export default function LoanPayment() {
                                     return (
                                         <button
                                             key={currency.currency}
-                                            onClick={() => setSelectedDepositCurrency(currency.currency)}
-                                            disabled={loading || currency.currency==='BTC' || currency.currency==='ETH'}
+                                          //  onClick={() => setSelectedDepositCurrency(currency.currency)}
+                                          onClick={()=>{
+                                            
+                    
+                                         if (currency.currency == 'BTC' || currency.currency === 'ETH') {   
+                                            toast.warn(`${currency.currency} payments are currently disabled. Try using USDT instead or convert`);   
+                                              }
+                                          }}
+                                        
+                                            disabled={loading }
                                             className={`p-3 rounded-xl border-2 ${isSelected
                                                     ? "bg-green-500/10 border-green-500"
                                                     : "border-gray-600/50 hover:border-gray-500"

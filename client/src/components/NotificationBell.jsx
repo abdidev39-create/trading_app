@@ -719,7 +719,7 @@ const NotificationBell = () => {
                                                     )}
 
                                                     {/* Actions */}
-                                                    {/* {notification.actions && notification.actions.length > 0 && (
+                                                    {notification.actions && notification.actions.length > 0 && (
                                                         <div className="flex items-center gap-2 mt-3">
                                                             {notification.actions.slice(0, 2).map((action, index) => (
                                                                 <button
@@ -746,7 +746,7 @@ const NotificationBell = () => {
                                                                 </button>
                                                             ))}
                                                         </div>
-                                                    )} */}
+                                                    )}
                                                 </div>
 
                                                 {/* Delete Button */}

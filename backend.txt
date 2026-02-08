@@ -8,3 +8,8 @@ client\src\admin\components\LoanPanel.jsx
 client\src\services\api.js
 
 
+ const response = await axios.get(`${backendUrl}api/conversions/prices`,{
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });

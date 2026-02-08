@@ -22,7 +22,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import NotificationBell from './NotificationBell';
 
-import {assets} from '../assets/assets';
+import { assets } from '../assets/assets';
 
 const Header = () => {
   const { isLogin, token } = useAuth();
@@ -42,21 +42,25 @@ const Header = () => {
   }, []);
 
   const navigation = [
-   
+
     { name: 'News', href: '#live', featured: true, icon: <TrendingUp className="w-4 h-4" /> },
+    { name: 'wallet', href: '#wallet', icon: <Wallet className="w-4 h-4" /> },
+    { name: 'Loans', href: '#loan', icon: <PiggyBank className="w-4 h-4" /> },
+    { name: 'Profile', href: '#profile', icon: <User className="w-4 h-4" /> },
   ];
 
 
 
   const gamesDropdown = [
-  
+
   ];
 
   const walletOptions = [
     { name: 'Profile', action: () => navigate('/profile'), icon: <User className="w-4 h-4" /> },
     { name: 'Loans', action: () => navigate('/loan'), icon: <PiggyBank className="w-4 h-4" /> },
     { name: 'Deposit', action: () => navigate('/deposit'), icon: <Coins className="w-4 h-4" /> },
-    { name: 'Withdraw', action: () => navigate('/Withdraw'), icon: <Wallet className="w-4 h-4" /> },
+    { name: 'Withdraw', action: () => navigate('/Withdraw'), icon: <Coins className="w-4 h-4" /> },
+    { name: 'Wallet', action: () => navigate('/wallet'), icon: <Wallet className="w-4 h-4" /> },
 
     { name: 'Transaction History', action: () => alert('History'), icon: <History className="w-4 h-4" /> },
 
@@ -86,7 +90,7 @@ const Header = () => {
           {/* Logo */}
           <div className="flex items-center space-x-3">
             <div className=" space-x-2 flex items-center cursor-pointer" onClick={() => navigate('/')}>
-              <img src={assets.logo} alt="Loading..." className="w-16 h-16 sm:w-20 md:h-20  "  />
+              <img src={assets.logo} alt="Loading..." className="w-16 h-16 sm:w-20 md:h-20  " />
               {/* <span className="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
                 Logo
               </span> */}
@@ -109,11 +113,11 @@ const Header = () => {
                     {item.dropdown && (
                       <ChevronDown className="w-4 h-4 ml-1" />
                     )}
-            
+
                   </p>
 
                   {/* Dropdown Menu for Games */}
-         
+
                 </div>
               ))}
             </nav>
@@ -126,7 +130,7 @@ const Header = () => {
               (
                 <div className="hidden md:flex items-center space-x-4">
                   <NotificationBell />
-    
+
 
                   {/* Wallet Button with Dropdown */}
                   <div className="relative">
@@ -135,7 +139,7 @@ const Header = () => {
                       className="flex items-center space-x-2 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 px-4 py-2 rounded-lg transition-all duration-200"
                     >
                       <Menu className="w-5 h-5" />
-                    
+
                     </button>
 
                     {/* Wallet Dropdown */}
@@ -143,7 +147,7 @@ const Header = () => {
                       <div className={`${isWalletDropdownOpen ? '' : 'invisible'} z-50  absolute top-full right-0 mt-2 w-64 bg-gray-800 border border-gray-700 rounded-xl shadow-2xl`}>
                         {/* // <div className="p-4 border-b  border-gray-700"> */}
                         <div className="">
-                          
+
                         </div>
 
                         <div className="p-2">
@@ -184,7 +188,7 @@ const Header = () => {
           </div>
 
 
-        
+
           {!isLogin && (
             <button
               onClick={() => navigate('/login')}
@@ -229,7 +233,7 @@ const Header = () => {
             {/* Mobile Wallet Section */}
             <div className="p-4 border-t border-gray-800">
               <div className="flex items-center justify-between mb-4">
-          
+
                 <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
               </div>
 

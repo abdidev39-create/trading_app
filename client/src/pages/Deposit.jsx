@@ -16,6 +16,7 @@ import MobileNav from "../components/MobileNav";
 import axios from "axios";
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { Helmet } from "react-helmet-async";
 
 // API configuration
 const API_URL = 'https://trading-app-fdzj.onrender.com/api';

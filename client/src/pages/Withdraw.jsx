@@ -8,6 +8,7 @@ import ConfirmationModal from "../components/ConfirmationModal.jsx";
 import MobileNav from "../components/MobileNav.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
 import axios from "axios";
+import { Helmet } from "react-helmet-async";
 
 import { toast } from "react-toastify";
 

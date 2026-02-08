@@ -21,8 +21,10 @@ import authRouter from "./routes/authRoute.js";
 import tradeRouter from "./routes/tradeRoutes.js";
 import conversionRouter from "./routes/conversionRoutes.js";
 import notificationRouter from "./routes/notificationRoutes.js";
+import expiredLoanRouter from "./routes/expiredLoanRoutes.js";
 
 import PriceFeedService from "./services/priceFeed.js";
+//import cronService from "./services/cronService.js";
 import './services/orderProcessor.js';
 
 
@@ -40,13 +42,18 @@ const allow = [
   "http://localhost:5173",
   //"https://trading-platform-qfig.onrender.com/",
   "https://trading-app-fdzj.onrender.com/",
-  "https://www.zaytrade.com/"
+  "https://www.zaytrade.com/",
+  "https://zaytrade.com/",
+  "http://localhost:5173/"
 ];
 
 app.use(cors({ origin: allow, credentials: true }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+
+/* --- Initialize cron jobs---*/
+//cronService.init();
 
 /* ---------- DB ---------- */
 connectToMongoDB();
@@ -60,6 +67,7 @@ const io = new Server(server, {
 
 /* ---------- Price Feed ---------- */
 let priceFeedService;
+
 try {
   priceFeedService = new PriceFeedService(io);
   global.priceFeedService = priceFeedService;
@@ -67,6 +75,7 @@ try {
 } catch (err) {
   console.error("PriceFeedService failed:", err);
 }
+
 
 /* ---------- API Routes (FIRST) ---------- */
 app.use("/api/auth", authRouter);
@@ -79,6 +88,12 @@ app.use("/api/users", userRouter);
 app.use("/api/trades", tradeRouter);
 app.use("/api/conversions", conversionRouter);
 app.use("/api/notifications", notificationRouter);
+app.use("/api/expired-loans", expiredLoanRouter);
+
+app.get("/api/health", (req, res) => {
+  res.json({ status: "ok", timestamp: new Date() });
+  console.log("Health check ping received");
+});
 
 /* ---------- Price APIs ---------- */
 app.get("/api/prices", (req, res) => {

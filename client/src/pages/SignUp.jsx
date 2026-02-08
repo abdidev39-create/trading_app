@@ -20,7 +20,7 @@ import { assets } from "../assets/assets";
 import { auth, provider, signInWithPopup } from '../firebase.js'
 import TawkButton from "../components/TawkButton.jsx";
 
-
+import { Helmet } from "react-helmet-async";
 const SignUp = () => {
     const navigate = useNavigate()
     useEffect(() => {

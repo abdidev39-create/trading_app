@@ -72,10 +72,7 @@ export const getLoans = async (req, res) => {
       // .populate("userId", "email firstName lastName")
       .sort(sort)
       .skip(skip)
-      .limit(parseInt(limit));
-
-    console.log(loans)
-
+      .limit(parseInt(limit)); 
 
     // Get total count for pagination
     const total = await Loan.countDocuments(query);
@@ -151,6 +148,13 @@ export const createLoan = async (req, res) => {
     }
 
     const user = await userModel.findById(userId);
+
+    if(user.kycStatus !== 'approved') {
+      return res.json({
+        success: false,
+        message: 'KYC verification required'
+      });
+    }
 
     // BLOCK second loan
     if (user.loanStatus !== "no_active_loan") {
@@ -232,6 +236,13 @@ export const approveLoan = async (req, res) => {
     const dueDate = new Date();
     dueDate.setDate(dueDate.getDate() + parseInt(repaymentPeriod));
 
+
+    // for test
+   // dueDate.setMinutes(dueDate.getMinutes() + parseInt(repaymentPeriod));
+    console.log('Current date:', new Date());
+    console.log('Repayment period (minutes):', repaymentPeriod);
+    console.log('Due date set to:', dueDate);
+
     // Update loan with approval details
     loan.amountApproved = amountApproved || loan.amountRequested;
     loan.interestRate = interestRate || loan.interestRate;
@@ -256,6 +267,8 @@ export const approveLoan = async (req, res) => {
     user.loanUsdt = amountApproved
     await user.save();
     await NotificationService.createLoanNotification(loan.userId, loan, "approved");
+
+    console.log(loan)
 
     res.json({
       success: true,
@@ -348,7 +361,7 @@ export const disburseLoan = async (req, res) => {
       });
     }
 
-    if (loan.status !== "approved") {
+    if (!["active", "approved", "defaulted"].includes(loan.status)) {
       return res.status(400).json({
         success: false,
         message: `Loan cannot be disbursed. Current status: ${loan.status}`
@@ -409,7 +422,7 @@ export const recordPayment = async (req, res) => {
       });
     }
 
-    if (loan.status !== "active") {
+    if (!["active", "approved", "defaulted"].includes(loan.status)) {
       return res.status(400).json({
         success: false,
         message: `Payments cannot be recorded for loans with status: ${loan.status}`
@@ -636,7 +649,7 @@ export const submitLoanPayment = async (req, res) => {
 
 
     // Validate loan status
-    if (loan.status !== "approved") {
+    if (!["approved", "active", "defaulted"].includes(loan.status)) {
       return res.json({
         success: false,
         message: `Cannot make payment for loan with status: ${loan.status}`
@@ -900,7 +913,7 @@ export const getActiveLoans = async (req, res) => {
     const userId = req.userId;
     const loans = await Loan.find({
       userId,
-      status: { $in: ["active", "approved"] }
+      status: { $in: ["active", "approved", "defaulted"] }
     }).select("loanId amountRequested amountApproved currency remainingBalance status dueDate");
 
     res.json({
@@ -1599,7 +1612,7 @@ export const reviewPayment = async (req, res) => {
     }
 
     // Check if loan is active
-    if (loan.status !== "approved") { // Changed from "approved" to "active" as loans are active when disbursed
+    if (!["active", "approved", "defaulted"].includes(loan.status)) { // Changed from "approved" to "active" as loans are active when disbursed
       return res.json({
         success: false,
         message: `Cannot process payment for loan with status: ${loan.status}`

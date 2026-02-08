@@ -19,7 +19,7 @@ export default function Hero() {
     },
     {
       id: 3,
-      image: assets.hero3,
+      image: assets.hero,
       title: "Unparalleled Trading Products and Services",
       subtitle: "Access exclusive tools, analytics, and market intelligence"
     }

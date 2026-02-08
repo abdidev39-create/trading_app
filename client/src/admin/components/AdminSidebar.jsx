@@ -17,7 +17,8 @@ import {
   ChevronRight,
   PiggyBank,
   CircleDollarSign,
-  Newspaper
+  Newspaper,
+  Clock
 
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
@@ -34,6 +35,7 @@ export default function AdminSidebar({ activeTab, setActiveTab, mobileMenuOpen, 
     { tab: 'transactions', icon: Repeat, label: 'Transactions' },
     { tab: 'deposits', icon: ArrowDownCircle, label: 'Deposits' },
     { tab: 'withdrawals', icon: ArrowUpCircle, label: 'Withdrawals' },
+    { tab: 'expired-loans', icon: Clock, label: 'Expired Loans' },
    // { tab: 'analytics', icon: BarChart3, label: 'Analytics' },
     //{ tab: 'predictions', icon: LineChart, label: 'Predictions' },
     { tab: 'loans', icon: PiggyBank, label: 'Loans' },

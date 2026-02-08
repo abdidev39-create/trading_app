@@ -63,6 +63,7 @@ class NotificationService {
           modelId: deposit._id,
         },
         actions: [
+         /*
           {
             label: status === 'completed' ? "View Balance" : "View Details",
             url: status === 'completed'
@@ -77,6 +78,7 @@ class NotificationService {
             method: "GET",
             style: "secondary",
           }
+         */
         ],
         icon: "deposit",
         metadata: {
@@ -133,6 +135,7 @@ class NotificationService {
           modelId: withdrawal._id,
         },
         actions: [
+          /*  
           {
             label: "View Transaction",
             url: `/dashboard/withdrawals/${withdrawal._id}`,
@@ -145,6 +148,7 @@ class NotificationService {
             method: "GET",
             style: "secondary",
           }
+          */
         ],
         icon: "withdrawal",
         metadata: {
@@ -213,6 +217,7 @@ class NotificationService {
           modelId: loan._id,
         },
         actions: [
+         /*
           {
             label: "View Loan",
             url: `/dashboard/loans/${loan._id}`,
@@ -226,6 +231,7 @@ class NotificationService {
             style: "secondary",
             show: ["active", "defaulted"].includes(status)
           }
+         */
         ].filter(action => action.show === undefined || action.show),
         icon: "loan",
         metadata: {
@@ -294,6 +300,7 @@ class NotificationService {
           modelId: order._id,
         },
         actions: [
+        /*
           {
             label: "View Trade",
             url: `/dashboard/trades/${order._id}`,
@@ -306,6 +313,7 @@ class NotificationService {
             method: "GET",
             style: "secondary",
           }
+        */
         ],
         icon: "trade",
         metadata: {
@@ -355,18 +363,20 @@ class NotificationService {
       };
 
       const actions = [
+        /*
         {
           label: "View KYC",
           url: `/dashboard/kyc/${kyc._id}`,
           method: "GET",
           style: status === "approved" ? "success" : "primary",
         }
+        */
       ];
 
       if (status === "rejected") {
         actions.push({
           label: "Resubmit KYC",
-          url: "/dashboard/kyc/submit",
+          url: "/kyc",
           method: "GET",
           style: "danger",
         });

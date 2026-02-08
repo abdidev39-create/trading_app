@@ -20,7 +20,7 @@ const loanPaymentSchema = new mongoose.Schema({
     // For external wallet payments
   status: {
     type: String,
-    enum: ["pending", "approved", "rejected", "completed"],
+    enum: ["pending", "approved", "rejected", "completed","defaulted"],
     default: "pending"
   },
   reviewedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },

@@ -9,7 +9,11 @@ import { useAuth } from "../../context/AuthContext";
 //const API_BASE_URL = "http://localhost:3000/api"; // Change this to your backend URL
 
 export default function LoansPanel() {
-  const { backendUrl, token } = useAuth();
+  const {token,backendUrl } = useAuth();
+
+//  const backendUrl = 'http://localhost:3000/'
+
+  
   const [status, setStatus] = useState("All Status");
   const [type, setType] = useState("All Types");
   const [openStatus, setOpenStatus] = useState(false);
@@ -200,7 +204,7 @@ export default function LoansPanel() {
     setSelectedLoan(loan);
     setApprovedAmount(loan.amountRequested.toString());
     setInterestRate(loan.interestRate ? loan.interestRate.toString() : "12.5");
-    setRepaymentPeriod(loan.repaymentPeriod ? loan.repaymentPeriod.toString() : "30");
+    setRepaymentPeriod(loan.repaymentPeriod ? loan.repaymentPeriod.toString() : "10");
     setShowApproveModal(true);
   };
 

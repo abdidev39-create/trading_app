@@ -1,14 +1,9 @@
 import { useState, useEffect } from "react";
 import {
-  LogOut, Eye, EyeOff, ChevronLeft,
-  Bell, CheckCircle2, HelpCircle, ArrowDownCircle,
-  ArrowUpCircle,
-  BadgeDollarSign,
-  Clock4,
-  CreditCard,
-  Shield,
-  User
-
+  Eye, EyeOff, ChevronLeft,
+  ArrowDownCircle, ArrowUpCircle,
+  BadgeDollarSign, Clock4,
+  RefreshCw
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -18,21 +13,15 @@ import MobileNav from "../components/MobileNav";
 import { toast } from "react-toastify";
 import Loading from "../components/Loading";
 
-export default function ProfilePage() {
-
+export default function WalletPage() {
   const navigate = useNavigate();
   const [showBalance, setShowBalance] = useState(false);
   const { backendUrl, token } = useAuth();
-  const [userdata, setUserdata] = useState({
-    name: "",
-    email: "",
-    avatar: "",
-    wallet: {
-      usdt: 0,
-      btc: 0,
-      eth: 0,
-      loanUsdt: 0.00
-    }
+  const [walletData, setWalletData] = useState({
+    usdt: 0,
+    btc: 0,
+    eth: 0,
+    loanUsdt: 0.00
   });
   const [loading, setLoading] = useState(false);
   const [marketPrices, setMarketPrices] = useState(null);
@@ -62,7 +51,7 @@ export default function ProfilePage() {
     }
   };
 
-  const fetchProfile = async () => {
+  const fetchWallet = async () => {
     try {
       setLoading(true);
       const res = await axios.get(`${backendUrl}api/auth/profile`, {
@@ -72,12 +61,12 @@ export default function ProfilePage() {
       });
 
       if (res.data.success) {
-        setUserdata(res.data.user);
+        setWalletData(res.data.user.wallet);
       } else {
-        toast.error('Fetch failed');
+        toast.error('Failed to fetch wallet data');
       }
     } catch (error) {
-      toast.error("Profile fetch failed");
+      toast.error("Wallet fetch failed");
       return null;
     } finally {
       setLoading(false);
@@ -85,7 +74,7 @@ export default function ProfilePage() {
   };
 
   useEffect(() => {
-    fetchProfile();
+    fetchWallet();
     getMarketPrices();
 
     // Refresh prices every 30 seconds
@@ -98,16 +87,16 @@ export default function ProfilePage() {
 
   // Calculate total balance with market prices
   const calculateTotalBalance = () => {
-    const usdtValue = userdata.wallet.usdt || 0;
+    const usdtValue = walletData.usdt || 0;
 
     // Use market prices if available, otherwise use default values
     const btcPrice = marketPrices?.BTC?.price || 0;
-    const btcValue = (userdata.wallet.btc || 0) * btcPrice;
+    const btcValue = (walletData.btc || 0) * btcPrice;
 
     const ethPrice = marketPrices?.ETH?.price || 0;
-    const ethValue = (userdata.wallet.eth || 0) * ethPrice;
+    const ethValue = (walletData.eth || 0) * ethPrice;
 
-    const loanUsdtValue = userdata.wallet.loanUsdt || 0;
+    const loanUsdtValue = walletData.loanUsdt || 0;
 
     return usdtValue + btcValue + ethValue + loanUsdtValue;
   };
@@ -122,9 +111,9 @@ export default function ProfilePage() {
     const totalBalance = calculateTotalBalance();
     if (totalBalance === 0) return 0;
 
-    const btcBalance = (userdata.wallet.btc || 0) * (marketPrices?.BTC?.price || 0);
-    const ethBalance = (userdata.wallet.eth || 0) * (marketPrices?.ETH?.price || 0);
-    const usdtBalance = userdata.wallet.usdt || 0;
+    const btcBalance = (walletData.btc || 0) * (marketPrices?.BTC?.price || 0);
+    const ethBalance = (walletData.eth || 0) * (marketPrices?.ETH?.price || 0);
+    const usdtBalance = walletData.usdt || 0;
 
     const weightedChange = (
       (btcBalance * btcChange) +
@@ -152,15 +141,15 @@ export default function ProfilePage() {
   };
 
   const quickActions = [
-    { icon: <ArrowDownCircle size={20} />, label: "Deposit", color: "text-blue-400" },
-    { icon: <ArrowUpCircle size={20} />, label: "Withdraw", color: "text-green-400" },
-    { icon: <BadgeDollarSign size={20} />, label: "Loan", color: "text-purple-400" },
-    { icon: <Clock4 size={20} />, label: "History", color: "text-gray-400" }
+    { icon: <ArrowDownCircle size={20} />, label: "Deposit", color: "text-blue-400", route: "/deposit" },
+    { icon: <ArrowUpCircle size={20} />, label: "Withdraw", color: "text-green-400", route: "/withdraw" },
+    { icon: <BadgeDollarSign size={20} />, label: "Loan", color: "text-purple-400", route: "/loan" },
+    { icon: <Clock4 size={20} />, label: "History", color: "text-gray-400", route: "/history" }
   ];
 
   return (
     loading ? (
-      <Loading text="Fetching your profile..." />
+      <Loading text="Loading your wallet..." />
     ) : (
       <div className="min-h-screen bg-gray-900 text-gray-100 mb-20">
         <MobileNav />
@@ -176,6 +165,8 @@ export default function ProfilePage() {
                 <ChevronLeft size={20} />
                 <span className="font-medium">Back</span>
               </button>
+              <h1 className="text-lg font-semibold text-white">My Wallet</h1>
+              <div className="w-20"></div> {/* Spacer for alignment */}
             </div>
           </div>
         </div>
@@ -184,35 +175,11 @@ export default function ProfilePage() {
         <div className="max-w-4xl mx-auto px-2 py-6">
           <div className="space-y-6">
 
-            {/* Profile Header */}
-            <div className="bg-gray-900 rounded-lg sm:border border-gray-700 p-3 sm:p-6">
-              <div className="flex items-center gap-4">
-                <div className="relative">
-                  <div className="w-16 h-16 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-300 text-2xl font-semibold border-2 border-gray-700">
-                    {userdata.name && userdata.name.trim()[0]}
-                  </div>
-                </div>
-
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
-                    <h1 className="sm:text-xl font-semibold text-white">{userdata?.name}</h1>
-                  </div>
-                  <p className="text-gray-400 text-sm mb-2">{userdata.email}</p>
-                  <div className="flex items-center gap-3">
-                    {/* Optional: Add user tier or member since info here */}
-                  </div>
-                </div>
-              </div>
-            </div>
-
             {/* Balance Overview */}
-
-            {/*
-            
-             <div className="bg-gray-900 rounded-lg sm:border border-gray-700 p-3 sm:p-6">
+            <div className="bg-gray-900 rounded-lg sm:border border-gray-700 p-3 sm:p-6">
               <div className="flex justify-between items-center mb-6">
                 <div>
-                  <h2 className="text-md font-bold text-white">Balance Overview</h2>
+                  <h2 className="text-md font-bold text-white">Wallet Balance</h2>
                   {marketPrices && lastUpdated && (
                     <div className="flex items-center gap-2 mt-1">
                       <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
@@ -234,7 +201,7 @@ export default function ProfilePage() {
                 </div>
               </div>
 
-           //   Total Balance 
+              {/* Total Balance */}
               <div className="bg-gray-700/50 rounded-lg p-4 mb-6 border border-gray-600">
                 <div className="flex justify-between items-start mb-1">
                   <p className="text-gray-400 text-sm">Total Balance</p>
@@ -242,9 +209,10 @@ export default function ProfilePage() {
                     <button
                       onClick={getMarketPrices}
                       disabled={priceLoading}
-                      className="text-xs text-blue-400 hover:text-blue-300 transition-colors disabled:opacity-50"
+                      className="flex items-center gap-1 text-xs text-blue-400 hover:text-blue-300 transition-colors disabled:opacity-50"
                       title="Refresh prices"
                     >
+                      <RefreshCw size={12} className={priceLoading ? "animate-spin" : ""} />
                       {priceLoading ? "Refreshing..." : "Refresh"}
                     </button>
                   )}
@@ -273,80 +241,81 @@ export default function ProfilePage() {
                 </div>
               </div>
 
-             ///  Balance Breakdown 
+              {/* Balance Breakdown */}
               <div className="grid grid-cols-3 gap-4 mb-6">
                 <BalanceCard
                   label="Available"
-                  value={userdata.wallet.usdt}
+                  value={walletData.usdt}
                   showBalance={showBalance}
                   color="text-green-400"
                 />
                 <BalanceCard
                   label="Crypto"
-                  value={calculateTotalBalance() - userdata.wallet.usdt - userdata.wallet.loanUsdt}
+                  value={calculateTotalBalance() - walletData.usdt - walletData.loanUsdt}
                   showBalance={showBalance}
                   color="text-blue-400"
                 />
                 <BalanceCard
                   label="Loans"
-                  value={userdata.wallet.loanUsdt}
+                  value={walletData.loanUsdt}
                   showBalance={showBalance}
                   color="text-purple-400"
                 />
               </div>
 
-             //Wallet Assets 
+              {/* Wallet Assets */}
               <div className="pt-6 border-t border-gray-700">
                 <h3 className="font-semibold text-white mb-4">Wallet Assets</h3>
                 <div className="space-y-3">
                   <AssetRow
                     currency="USDT"
-                    balance={userdata.wallet.usdt}
+                    balance={walletData.usdt}
                     showBalance={showBalance}
                     logo={assets.tether}
-                    usdValue={userdata.wallet.usdt}
+                    usdValue={walletData.usdt}
                     price={1}
                     change={0}
                     marketPrices={marketPrices}
                   />
                   <AssetRow
                     currency="BTC"
-                    balance={userdata.wallet.btc}
+                    balance={walletData.btc}
                     showBalance={showBalance}
                     logo={assets.bitcoin}
-                    usdValue={userdata.wallet.btc * (marketPrices?.BTC?.price || 0)}
+                    usdValue={walletData.btc * (marketPrices?.BTC?.price || 0)}
                     price={marketPrices?.BTC?.price || 0}
                     change={marketPrices?.BTC?.change24h || 0}
                     marketPrices={marketPrices}
                   />
                   <AssetRow
                     currency="ETH"
-                    balance={userdata.wallet.eth}
+                    balance={walletData.eth}
                     showBalance={showBalance}
                     logo={assets.ethereum}
-                    usdValue={userdata.wallet.eth * (marketPrices?.ETH?.price || 0)}
+                    usdValue={walletData.eth * (marketPrices?.ETH?.price || 0)}
                     price={marketPrices?.ETH?.price || 0}
                     change={marketPrices?.ETH?.change24h || 0}
                     marketPrices={marketPrices}
                   />
 
-                  <h3 className="font-semibold text-white mb-4 pt-4">Loan Assets</h3>
-
-                  <AssetRow
-                    currency="USDT Loan"
-                    balance={userdata.wallet.loanUsdt}
-                    showBalance={showBalance}
-                    logo={assets.tether}
-                    usdValue={userdata.wallet.loanUsdt}
-                    price={1}
-                    change={0}
-                    marketPrices={marketPrices}
-                  />
+                  {/* Loan Assets Section */}
+                  <div className="mt-6 pt-4 border-t border-gray-700">
+                    <h3 className="font-semibold text-white mb-4">Loan Assets</h3>
+                    <AssetRow
+                      currency="USDT Loan"
+                      balance={walletData.loanUsdt}
+                      showBalance={showBalance}
+                      logo={assets.tether}
+                      usdValue={walletData.loanUsdt}
+                      price={1}
+                      change={0}
+                      marketPrices={marketPrices}
+                      isLoan={true}
+                    />
+                  </div>
                 </div>
               </div>
             </div>
-            */}
-           
 
             {/* Quick Actions */}
             <div className="bg-gray-900 rounded-lg sm:border border-gray-700 p-3 sm:p-6">
@@ -354,9 +323,7 @@ export default function ProfilePage() {
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                 {quickActions.map((action, index) => (
                   <ActionCard
-                    onClick={() => {
-                      navigate(`/${action.label.toLowerCase()}`);
-                    }}
+                    onClick={() => navigate(action.route)}
                     key={index}
                     icon={action.icon}
                     label={action.label}
@@ -366,45 +333,6 @@ export default function ProfilePage() {
               </div>
             </div>
 
-            {/* Account Management */}
-            <div className="bg-gray-900 rounded-lg sm:border border-gray-700 p-3 sm:p-6">
-              <h2 className="text-lg font-semibold text-white mb-4">Account</h2>
-              <div className="space-y-3">
-                <SettingsCard
-                  icon={<User size={18} />}
-                  label="Personal Information"
-                  description="Update your profile details"
-                />
-
-                <SettingsCard
-                  icon={<HelpCircle size={18} />}
-                  label="Help & Support"
-                  description="Get help with your account"
-                  onClick={() => {
-
-                      // Show and maximize chat
-                      if (window.Tawk_API) {
-                        window.Tawk_API.showWidget();
-                        window.Tawk_API.maximize();
-                      }
-
-                  }}
-                />
-                <SettingsCard
-                  icon={<LogOut size={18} />}
-                  label="Sign Out"
-                  description="Logout from your account"
-                  danger
-                  onClick={() => {
-                    localStorage.removeItem('token');
-                    localStorage.removeItem('userData');
-                    toast.info('Logout successfully');
-                    navigate('/');
-                    window.location.reload();
-                  }}
-                />
-              </div>
-            </div>
           </div>
         </div>
       </div>
@@ -425,17 +353,24 @@ function BalanceCard({ label, value, showBalance, color }) {
 }
 
 // Component for asset rows with market data
-function AssetRow({ currency, balance, showBalance, logo, usdValue, price, change, marketPrices }) {
-  const isStablecoin = currency === "USDT" || currency === "USDT Loan";
+function AssetRow({ currency, balance, showBalance, logo, usdValue, price, change, marketPrices, isLoan = false }) {
+  const isStablecoin = currency.includes("USDT");
 
   return (
-    <div className="flex items-center justify-between p-3 hover:bg-gray-700/50 rounded-lg transition-colors border border-transparent hover:border-gray-600">
+    <div className={`flex items-center justify-between p-3 hover:bg-gray-700/50 rounded-lg transition-colors border ${isLoan ? "border-purple-500/30" : "border-transparent hover:border-gray-600"}`}>
       <div className="flex items-center gap-3">
-        <img
-          src={logo}
-          alt={currency}
-          className="w-8 h-8 rounded-full"
-        />
+        <div className="relative">
+          <img
+            src={logo}
+            alt={currency}
+            className="w-8 h-8 rounded-full"
+          />
+          {isLoan && (
+            <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-purple-500 flex items-center justify-center">
+              <BadgeDollarSign size={10} className="text-white" />
+            </div>
+          )}
+        </div>
         <div>
           <div className="font-medium text-white">{currency}</div>
           <div className="text-gray-400 text-sm">
@@ -479,26 +414,6 @@ function ActionCard({ icon, label, color, onClick }) {
         {icon}
       </div>
       <span className="text-sm font-medium text-gray-300">{label}</span>
-    </button>
-  );
-}
-
-// Component for settings cards
-function SettingsCard({ icon, label, description, danger = false, onClick = () => { } }) {
-  return (
-    <button
-      onClick={onClick}
-      className={`flex items-center gap-4 p-4 w-full text-left hover:bg-gray-700/50 rounded-lg border border-transparent hover:border-gray-600 transition-colors ${danger ? "text-red-400 hover:text-red-300" : "text-gray-300"
-        }`}
-    >
-      <div className={danger ? "text-red-500" : "text-gray-400"}>
-        {icon}
-      </div>
-
-      <div className="flex-1">
-        <div className="font-medium text-sm">{label}</div>
-        <div className="text-gray-500 text-xs">{description}</div>
-      </div>
     </button>
   );
 }
