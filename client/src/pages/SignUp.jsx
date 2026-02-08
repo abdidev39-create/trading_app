@@ -172,7 +172,7 @@ const SignUp = () => {
                                             placeholder="Enter your first name"
                                             value={formData.firstName}
                                             onChange={handleChange}
-                                            className="w-full py-3 pl-10 pr-4 bg-gray-900 border border-gray-800 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-sm"
+                                            className="w-full py- pl-10 pr-4 bg-gray-900 border border-gray-800 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-sm"
                                             required
                                             autoComplete="firstName"
                                         />
@@ -189,7 +189,7 @@ const SignUp = () => {
                                             placeholder="Enter your last name"
                                             value={formData.lastName}
                                             onChange={handleChange}
-                                            className="w-full py-3 pl-10 pr-4 bg-gray-900 border border-gray-800 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-sm"
+                                            className="w-full py- pl-10 pr-4 bg-gray-900 border border-gray-800 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-sm"
                                             required
                                             autoComplete="lastName"
 
@@ -212,7 +212,7 @@ const SignUp = () => {
                                         placeholder="Enter your email address"
                                         value={formData.email}
                                         onChange={handleChange}
-                                        className="w-full py-3 pl-10 pr-4 bg-gray-900 border border-gray-800 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-sm"
+                                        className="w-full py- pl-10 pr-4 bg-gray-900 border border-gray-800 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-sm"
                                         autoComplete="email"
                                         required
                                     />
@@ -233,7 +233,7 @@ const SignUp = () => {
                                         type={showPassword ? "text" : "password"}
                                         onChange={handleChange}
                                         placeholder="••••••••"
-                                        className="w-full py-3 pl-10 pr-10 bg-gray-900 border border-gray-800 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-sm"
+                                        className="w-full py- pl-10 pr-10 bg-gray-900 border border-gray-800 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-sm"
                                         autoComplete="password"
                                         required
                                     />
@@ -250,7 +250,7 @@ const SignUp = () => {
                             <motion.button
                                 disabled={loading}
                                 type="submit"
-                                className="w-full bg-blue-500  hover:to-blue-700 text-white font-medium py-3 mt-4 rounded-lg flex items-center justify-center transition-all shadow-md mb-5"
+                                className="w-full bg-blue-500  hover:to-blue-700 text-white font-medium py- mt-4 rounded-lg flex items-center justify-center transition-all shadow-md mb-5"
                                 whileHover={{ scale: 1.02 }}
                                 whileTap={{ scale: 0.97 }}
                             >

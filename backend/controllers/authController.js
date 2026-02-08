@@ -1,9 +1,9 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import userModel from "../models/usermodel.js";
+import { sendOTP, ResetEmail } from "../config/emailService.js";
 
-import { sendOtpEmail } from '../config/verifynodemailer.js'
-import { RestEmail } from '../config/resetnodemailer.js'
+
 //import { sendWelcomeEmail } from "../utils/sendEmail.js"; 
 export const register = async (req, res) => {
   try {
@@ -39,7 +39,7 @@ export const register = async (req, res) => {
       verifyOtp: otp,
       verifyOtpExpireAt: Date.now() + 15 * 60 * 1000
     });
-      
+
 
     return res.json({
       success: true,
@@ -47,7 +47,8 @@ export const register = async (req, res) => {
       userEmail: email
     });
 
-    await sendOtpEmail(otp, name, email)
+    //await sendOtpEmail(otp, name, email)
+    sendOTP(email, otp).catch(console.error);
 
   } catch (error) {
     console.error("Registration error:", error);
@@ -66,8 +67,8 @@ export const firebase = async (req, res) => {
     let user = await userModel.findOne({ googleId });
     let msg = 'Login successful'
     if (!user) {
-      
-      const existingUser = await userModel.findOne({email});
+
+      const existingUser = await userModel.findOne({ email });
       console.log("Existing user:", existingUser);
 
       if (existingUser) {
@@ -123,9 +124,13 @@ export const reSend = async (req, res) => {
     user.verifyOtp = otp
     user.verifyOtpExpireAt = Date.now() + 12 * 60 * 1000
     await user.save()
-     
+
     res.json({ success: true, message: 'otp is resend check your email' })
-     await sendOtpEmail(otp, user.name, user.email)
+    const result = await ResetEmail(otp, name, email);
+
+    if (!result.success) {
+      console.log("Email failed");
+    }
   } catch (er) {
     res.send({
       success: false, message: er.message
@@ -207,7 +212,7 @@ export const login = async (req, res) => {
       expiresIn: '7d',
     });
 
-    let userRole = user.role === 'admin' ? {role: 'admin'} : {};
+    let userRole = user.role === 'admin' ? { role: 'admin' } : {};
 
     const data = {
       name: user.name,
@@ -215,7 +220,7 @@ export const login = async (req, res) => {
       kycStatus: user.kycStatus,
       isAccountVerified: user.isAccountVerified,
       ...userRole
-      
+
 
     }
 
@@ -264,7 +269,11 @@ export const sendResetOtp = async (req, res) => {
       success: true, message: 'reset otp is send check your email'
     })
 
-        await RestEmail(otp, user.name, user.email)
+    const result = await ResetEmail(otp, name, email);
+
+    if (!result.success) {
+      console.log("Email failed");
+    }
 
   } catch (error) {
     console.log(error)
@@ -305,7 +314,7 @@ export const verifyResetOtp = async (req, res) => {
       })
     }
 
-  
+
 
     res.json({
       success: true,
@@ -326,7 +335,7 @@ export const verifyResetOtp = async (req, res) => {
 export const resetPassword = async (req, res) => {
   const { email, otp, newPassword } = req.body
 
-  
+
   if (!email || !otp || !newPassword) {
     return res.json({
       success: false, message: 'New password are required'
@@ -334,7 +343,7 @@ export const resetPassword = async (req, res) => {
   }
   try {
 
-    
+
     const user = await userModel.findOne({ email })
     if (!user) {
       return res.json({
@@ -406,7 +415,11 @@ export const reSendResetOtp = async (req, res) => {
     await user.save()
 
     res.json({ success: true, message: 'Reset otp is resend check your email' })
-        await RestEmail(otp, user.name, email)
+    const result = await ResetEmail(otp, name, email);
+
+    if (!result.success) {
+      console.log("Email failed");
+    }
   } catch (er) {
     res.send({
       success: false, message: er.message
