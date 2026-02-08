@@ -8,8 +8,8 @@ import path from "path";
 import { fileURLToPath } from "url";
 import history from "connect-history-api-fallback";
 import connectToMongoDB from "./config/mongodb.js";
-//import { startBot } from "./bot/index.js";
 import startBot from "./bot/index.js";
+
 // Routes
 import userRouter from "./routes/userRoutes.js";
 import newsRouter from "./routes/newsRoutes.js";
@@ -23,51 +23,64 @@ import conversionRouter from "./routes/conversionRoutes.js";
 import notificationRouter from "./routes/notificationRoutes.js";
 import expiredLoanRouter from "./routes/expiredLoanRoutes.js";
 
+// Services
 import PriceFeedService from "./services/priceFeed.js";
-//import cronService from "./services/cronService.js";
 import './services/orderProcessor.js';
-
 
 dotenv.config();
 
-/* ---------- Path Fix (ESM pain tax) ---------- */
+/* ---------- Path Fix (ESM) ---------- */
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 /* ---------- App ---------- */
 const app = express();
 
-/* ---------- Middleware ---------- */
-const allow = [
+/* ---------- COOP / COEP Headers ---------- */
+app.use((req, res, next) => {
+  res.setHeader("Cross-Origin-Opener-Policy", "same-origin-allow-popups");
+  res.setHeader("Cross-Origin-Embedder-Policy", "unsafe-none");
+  next();
+});
+
+/* ---------- CORS ---------- */
+const allowedOrigins = [
   "http://localhost:5173",
-  //"https://trading-platform-qfig.onrender.com/",
-  "https://trading-app-fdzj.onrender.com/",
-  "https://www.zaytrade.com/",
-  "https://zaytrade.com/",
-  "http://localhost:5173/"
+  "https://www.zaytrade.com",
+  "https://zaytrade.com",
+  "https://trading-app-fdzj.onrender.com"
 ];
 
-app.use(cors({ origin: allow, credentials: true }));
+app.use(cors({
+  origin: allowedOrigins,
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"]
+}));
+
+// Handle preflight requests
+app.options("*", cors({
+  origin: allowedOrigins,
+  credentials: true
+}));
+
+/* ---------- Middleware ---------- */
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-/* --- Initialize cron jobs---*/
-//cronService.init();
-
-/* ---------- DB ---------- */
+/* ---------- Database ---------- */
 connectToMongoDB();
 startBot();
 
 /* ---------- Server & Socket ---------- */
 const server = http.createServer(app);
 const io = new Server(server, {
-  cors: { origin: "*", methods: ["GET", "POST"] }
+  cors: { origin: allowedOrigins, methods: ["GET", "POST"] }
 });
 
 /* ---------- Price Feed ---------- */
 let priceFeedService;
-
 try {
   priceFeedService = new PriceFeedService(io);
   global.priceFeedService = priceFeedService;
@@ -76,8 +89,7 @@ try {
   console.error("PriceFeedService failed:", err);
 }
 
-
-/* ---------- API Routes (FIRST) ---------- */
+/* ---------- API Routes ---------- */
 app.use("/api/auth", authRouter);
 app.use("/api/news", newsRouter);
 app.use("/api/loans", loanRouter);
@@ -108,15 +120,13 @@ app.get("/api/prices/:symbol", (req, res) => {
 });
 
 /* ---------- SPA History Fallback ---------- */
-app.use(
-  history({
-    rewrites: [
-      { from: /^\/api\/.*$/, to: ctx => ctx.parsedUrl.pathname }
-    ]
-  })
-);
+app.use(history({
+  rewrites: [
+    { from: /^\/api\/.*$/, to: ctx => ctx.parsedUrl.pathname }
+  ]
+}));
 
-/* ---------- Static Frontend ---------- */
+/* ---------- Serve Frontend ---------- */
 const clientDistPath = path.join(__dirname, "../client/dist");
 app.use(express.static(clientDistPath));
 

@@ -169,7 +169,7 @@ const SignUp = () => {
                                         <input
                                             name="firstName"
                                             type="text"
-                                            placeholder="Abebe"
+                                            placeholder=""
                                             value={formData.firstName}
                                             onChange={handleChange}
                                             className="w-full py-2.5 pl-10 pr-4 bg-gray-900 border border-gray-800 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-sm"
@@ -186,7 +186,7 @@ const SignUp = () => {
                                         <input
                                             name="lastName"
                                             type="text"
-                                            placeholder="Kebede"
+                                            placeholder=""
                                             value={formData.lastName}
                                             onChange={handleChange}
                                             className="w-full py-2.5 pl-10 pr-4 bg-gray-900 border border-gray-800 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-sm"
