@@ -1,8 +1,8 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import userModel from "../models/usermodel.js";
-//import { sendOTP } from "../config/emailService.js";
-import {sendTestEmail} from "../config/emailService.js";
+import { sendOTP } from "../config/sendOTP.js";
+
 
 
 //import { sendWelcomeEmail } from "../utils/sendEmail.js"; 
@@ -41,8 +41,11 @@ export const register = async (req, res) => {
       verifyOtpExpireAt: Date.now() + 15 * 60 * 1000
     });
 
-    const result = await sendTestEmail(email);
-
+      sendOTP(email, otp).then(() => {
+      console.log("OTP sent successfully👌👌");
+    }).catch(error => {
+      console.error("❌❌❌❌Failed to send OTP:", error);
+    });
 
     return res.json({
       success: true,
@@ -51,7 +54,7 @@ export const register = async (req, res) => {
     });
 
     //await sendOtpEmail(otp, name, email)
-   // sendOTP(email, otp).catch(console.error);
+
 
   } catch (error) {
     console.error("Registration error:", error);
