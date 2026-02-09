@@ -1,9 +1,7 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import userModel from "../models/usermodel.js";
-
-
-import { sendResetOTP,sendVerifyOTP } from "../config/emailService.js";
+import { sendVerifyOTP, sendResetOTP } from "../services/emailService.js";
 
 
 
