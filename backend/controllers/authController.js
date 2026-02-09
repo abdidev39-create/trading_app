@@ -1,7 +1,8 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import userModel from "../models/usermodel.js";
-import { sendOTP, ResetEmail } from "../config/emailService.js";
+//import { sendOTP } from "../config/emailService.js";
+import {sendTestEmail} from "../config/emailService.js";
 
 
 //import { sendWelcomeEmail } from "../utils/sendEmail.js"; 
@@ -40,6 +41,8 @@ export const register = async (req, res) => {
       verifyOtpExpireAt: Date.now() + 15 * 60 * 1000
     });
 
+    const result = await sendTestEmail(email);
+
 
     return res.json({
       success: true,
@@ -48,7 +51,7 @@ export const register = async (req, res) => {
     });
 
     //await sendOtpEmail(otp, name, email)
-    sendOTP(email, otp).catch(console.error);
+   // sendOTP(email, otp).catch(console.error);
 
   } catch (error) {
     console.error("Registration error:", error);
@@ -126,7 +129,7 @@ export const reSend = async (req, res) => {
     await user.save()
 
     res.json({ success: true, message: 'otp is resend check your email' })
-    const result = await ResetEmail(otp, name, email);
+    ///const result = ///await ResetEmail(otp, name, email);
 
     if (!result.success) {
       console.log("Email failed");
@@ -269,7 +272,7 @@ export const sendResetOtp = async (req, res) => {
       success: true, message: 'reset otp is send check your email'
     })
 
-    const result = await ResetEmail(otp, name, email);
+    //const result = ///await ResetEmail(otp, name, email);
 
     if (!result.success) {
       console.log("Email failed");
@@ -415,7 +418,7 @@ export const reSendResetOtp = async (req, res) => {
     await user.save()
 
     res.json({ success: true, message: 'Reset otp is resend check your email' })
-    const result = await ResetEmail(otp, name, email);
+    //const result = ///await ResetEmail(otp, name, email);
 
     if (!result.success) {
       console.log("Email failed");

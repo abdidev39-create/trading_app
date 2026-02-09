@@ -11,89 +11,40 @@ const transporter = nodemailer.createTransport({
     }
 });
 export const RestEmail = async (myotp, name, email) => {
+    console.log({
+        host: process.env.SMTP_HOST,
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS,
+        sender: process.env.E_SENDER
+    });
     try {
         const info = await transporter.sendMail({
             from: process.env.E_SENDER,
             to: email,
             subject: "🔐 otp reset password",
-            html: `
-<div style="
-    background:#0f172a;
-    width:90%;
-    max-width:420px;
-    margin:auto;
-    padding:30px;
-    border-radius:12px;
-    font-family:Arial, sans-serif;
-    color:#e2e8f0;
-    box-shadow:0 6px 20px rgba(0,0,0,0.3);
-">
+            html: `<div style="background: linear-gradient(135deg, #ff9a9e, #fad0c4); width: 90%; max-width: 400px; margin: 0 auto; padding: 20px; border-radius: 12px; box-shadow: 0 3px 12px rgba(0, 0, 0, 0.2); font-family: Arial, sans-serif;">
+    <h2 style="text-align: center; color: #fff; font-size: 20px;">🔐 Reset Your OTP</h2>
+    
+    <p style="font-size: 14px; color: #fff; text-align: center;">Hello <strong>${name}</strong>,</p>
 
-    <!-- Logo / Brand -->
-    <h2 style="
-        text-align:center;
-        color:#2563eb;
-        margin-bottom:10px;
-        letter-spacing:1px;
-    ">
-        ZayTrade
-    </h2>
-
-    <p style="text-align:center; font-size:13px; color:#94a3b8;">
-        Secure Trading Platform
+    <p style="font-size: 18px; font-weight: bold; text-align: center; color: #fff; background: #ff6a88; padding: 8px; border-radius: 5px; display: inline-block;">Your OTP: ${myotp}</p>
+    
+    <p style="font-size: 12px; color: #fff; text-align: center;">
+        This code is valid for the next <strong>10 minutes</strong>. Please do not share it with anyone.  
+        If you did not request this code, ignore this email or contact our support team immediately.
     </p>
 
-    <hr style="border:none;height:1px;background:#1e293b;margin:20px 0;" />
-
-    <!-- Greeting -->
-    <p style="font-size:14px;">
-        Hello <strong>${name}</strong>,
-    </p>
-
-    <p style="font-size:14px; color:#cbd5f5;">
-        We received a request to reset your password. Use the OTP below to continue:
-    </p>
-
-    <!-- OTP Box -->
-    <div style="
-        background:#1e293b;
-        border:1px solid #2563eb;
-        text-align:center;
-        padding:16px;
-        margin:20px 0;
-        border-radius:8px;
-        font-size:22px;
-        font-weight:bold;
-        color:#2563eb;
-        letter-spacing:4px;
-    ">
-        ${myotp}
+    <div style="text-align: center; margin-top: 15px;">
+        <a href="mailto:abdigemchu83@gmail.com" style="color: #fff; background: linear-gradient(135deg, #36d1dc, #5b86e5); padding: 12px 22px; border-radius: 6px; text-decoration: none; font-size: 14px; font-weight: bold; display: inline-block; box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);">
+            📩 Contact Support
+        </a>
     </div>
 
-    <p style="font-size:13px; color:#94a3b8;">
-        This code expires in <strong>10 minutes</strong>. Never share it with anyone.
+    <p style="text-align: center; font-size: 12px; color: #fff; margin-top: 15px;">
+        Stay secure & take care, <br> ❤️
     </p>
-
-    <!-- Security Notice -->
-    <div style="
-        background:#020617;
-        padding:12px;
-        border-radius:6px;
-        margin-top:15px;
-        font-size:12px;
-        color:#94a3b8;
-    ">
-        If you did not request this reset, please ignore this email or contact support immediately.
-    </div>
-
-    <!-- Footer -->
-    <p style="text-align:center; font-size:11px; color:#64748b; margin-top:20px;">
-        © ${new Date().getFullYear()} ZayTrade. All rights reserved.
-    </p>
-
 </div>
 `
-
         });
         // console.log("OTP is send✅");
 
