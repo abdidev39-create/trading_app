@@ -1,7 +1,9 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import userModel from "../models/usermodel.js";
-import { sendOTP } from "../config/sendOTP.js";
+
+
+import { sendResetOTP,sendVerifyOTP } from "../config/emailService.js";
 
 
 
@@ -41,7 +43,7 @@ export const register = async (req, res) => {
       verifyOtpExpireAt: Date.now() + 15 * 60 * 1000
     });
 
-      sendOTP(email, otp).then(() => {
+      sendVerifyOTP(email, name, otp).then(() => {
       console.log("OTP sent successfully👌👌");
     }).catch(error => {
       console.error("❌❌❌❌Failed to send OTP:", error);
@@ -130,6 +132,12 @@ export const reSend = async (req, res) => {
     user.verifyOtp = otp
     user.verifyOtpExpireAt = Date.now() + 12 * 60 * 1000
     await user.save()
+
+     sendVerifyOTP(email,user.name, otp).then(() => {
+      console.log("OTP sent successfully👌👌");
+    }).catch(error => {
+      console.error("❌❌❌❌Failed to send OTP:", error);
+    });
 
     res.json({ success: true, message: 'otp is resend check your email' })
     ///const result = ///await ResetEmail(otp, name, email);
@@ -249,7 +257,7 @@ export const sendResetOtp = async (req, res) => {
       })
     }
 
-    console.log('email found', email)
+  
 
 
     const user = await userModel.findOne({ email })
@@ -270,6 +278,11 @@ export const sendResetOtp = async (req, res) => {
     console.log(otp, user.name, user.email)
     /// await RestEmail(otp, user.name, user.email)
 
+    sendResetOTP(email, user.name, otp).then(() => {
+      console.log("Reset OTP sent successfully👌👌");
+    }).catch(error => {
+      console.error("❌❌❌❌Failed to send Reset OTP:", error);
+    });
 
     res.json({
       success: true, message: 'reset otp is send check your email'
@@ -419,6 +432,8 @@ export const reSendResetOtp = async (req, res) => {
     user.resetOtp = otp;
     user.resetOtpExpireAt = Date.now() + 45 * 60 * 1000; // 45 min
     await user.save()
+
+      sendResetOTP(email, user.name, otp)
 
     res.json({ success: true, message: 'Reset otp is resend check your email' })
     //const result = ///await ResetEmail(otp, name, email);

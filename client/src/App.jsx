@@ -26,12 +26,6 @@ import KYCVerificationPopup from './components/KYCVerificationPopup.jsx';
 const LoanPayment = lazy(() => import("./pages/LoanPayment.jsx"));
 const NotificationCenter = lazy(() => import("./pages/NotificationCenter.jsx"));
 const WalletPage = lazy(() => import("./pages/WalletPage.jsx"));
-
-
-
-
-
-
 const App = () => {
   const {userData,token} = useAuth();
   const userRole = userData?.role ??""=== 'admin' ;

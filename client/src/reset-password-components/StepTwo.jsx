@@ -7,7 +7,7 @@ import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-toastify';
 const StepTwo = ({ email, otp, setOtp, step, setStep, verificationStatus, setVerificationStatus }) => {
-    const [newTimer,setNewTimer] =useState(15)
+    const [newTimer,setNewTimer] =useState(60)
     console.log(newTimer )
     const inputsRef = useRef([]);
     const { backendUrl } = useAuth()
