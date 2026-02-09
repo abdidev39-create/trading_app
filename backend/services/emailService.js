@@ -1,165 +1,97 @@
 import axios from "axios";
 
 // ==============================
-// VERIFY EMAIL TEMPLATE - SIMPLE & CLEAN
+// VERIFY EMAIL TEMPLATE
 // ==============================
 
 const verifyTemplate = (name, otp) => `
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta name="viewport" content="width=device-width">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ZayTrade Verify OTP</title>
+<style>
+  body { margin:0; padding:0; background:#f5f6fa; font-family: Arial, sans-serif; }
+  .container { max-width:420px; margin:0 auto; background:#ffffff; border-radius:8px; padding:25px; color:#333; }
+  h2 { margin:0; color:#2563eb; }
+  p { margin:5px 0; color:#555; font-size:14px; line-height:1.5; }
+  .otp { display:inline-block; background:#eaf2ff; color:#2563eb; font-size:28px; font-weight:bold; padding:15px 25px; border-radius:6px; letter-spacing:5px; margin:20px 0; }
+  .footer { font-size:11px; color:#888; margin-top:20px; }
+  @media screen and (max-width:480px) {
+    .container { padding:15px; }
+    .otp { font-size:24px; padding:12px 20px; letter-spacing:4px; }
+    p { font-size:13px; }
+  }
+</style>
 </head>
-<body style="margin:0;padding:0;background:#ffffff;font-family:Arial,sans-serif;">
-    <table width="100%" cellpadding="0" cellspacing="0" style="background:#ffffff;">
-        <tr>
-            <td align="center" style="padding:0;">
-                <table width="100%" cellpadding="0" cellspacing="0" style="max-width:480px;background:#ffffff;">
-                    <!-- Header -->
-                    <tr>
-                        <td style="padding:30px 20px 20px;text-align:center;">
-                            <div style="color:#0066cc;font-size:24px;font-weight:bold;">ZayTrade</div>
-                        </td>
-                    </tr>
-                    
-                    <!-- Content -->
-                    <tr>
-                        <td style="padding:0 20px;">
-                            <p style="margin:0 0 16px;font-size:16px;color:#333;">
-                                Hello <strong>${name}</strong>,
-                            </p>
-                            
-                            <p style="margin:0 0 24px;font-size:15px;color:#555;">
-                                Your verification code:
-                            </p>
-                            
-                            <!-- OTP Box -->
-                            <table width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 24px;">
-                                <tr>
-                                    <td align="center" style="background:#f8f8f8;border:2px solid #0066cc;border-radius:6px;padding:20px;">
-                                        <div style="font-size:24px;font-weight:bold;color:#0066cc;letter-spacing:6px;font-family:monospace;">
-                                            ${otp}
-                                        </div>
-                                        <div style="font-size:13px;color:#666;margin-top:8px;">
-                                            Expires in 10 minutes
-                                        </div>
-                                    </td>
-                                </tr>
-                            </table>
-                            
-                            <p style="margin:0 0 20px;font-size:14px;color:#666;">
-                                Enter this code to verify your account.
-                            </p>
-                            
-                            <!-- Note -->
-                            <table width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 20px;">
-                                <tr>
-                                    <td style="background:#f8f8f8;border-left:3px solid #ccc;padding:12px;">
-                                        <p style="margin:0;font-size:12px;color:#777;">
-                                            If you didn't create an account, ignore this email.
-                                        </p>
-                                    </td>
-                                </tr>
-                            </table>
-                        </td>
-                    </tr>
-                    
-                    <!-- Footer -->
-                    <tr>
-                        <td style="padding:30px 20px;text-align:center;border-top:1px solid #eee;">
-                            <div style="color:#888;font-size:12px;">
-                                © ${new Date().getFullYear()} ZayTrade
-                            </div>
-                        </td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
-    </table>
+<body>
+  <table width="100%" cellpadding="0" cellspacing="0">
+    <tr>
+      <td align="center">
+        <div class="container">
+          <h2>ZayTrade</h2>
+          <p style="font-size:13px;">Secure Trading Platform</p>
+          <hr style="border:none;height:1px;background:#e0e0e0;margin:15px 0;">
+          <p>Hello <strong>${name}</strong>,</p>
+          <p>Please verify your account using the OTP below:</p>
+          <div class="otp">${otp}</div>
+          <p>This code expires in 10 minutes.</p>
+          <p class="footer">© ${new Date().getFullYear()} ZayTrade</p>
+        </div>
+      </td>
+    </tr>
+  </table>
 </body>
 </html>
 `;
 
 // ==============================
-// RESET PASSWORD TEMPLATE - SIMPLE & CLEAN
+// RESET PASSWORD TEMPLATE
 // ==============================
 
 const resetTemplate = (name, otp) => `
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta name="viewport" content="width=device-width">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ZayTrade Reset OTP</title>
+<style>
+  body { margin:0; padding:0; background:#f5f6fa; font-family: Arial, sans-serif; }
+  .container { max-width:420px; margin:0 auto; background:#ffffff; border-radius:8px; padding:25px; color:#333; }
+  h2 { margin:0; color:#2563eb; }
+  p { margin:5px 0; color:#555; font-size:14px; line-height:1.5; }
+  .otp { display:inline-block; background:#eaf2ff; color:#2563eb; font-size:28px; font-weight:bold; padding:15px 25px; border-radius:6px; letter-spacing:5px; margin:20px 0; }
+  .footer { font-size:11px; color:#888; margin-top:20px; }
+  @media screen and (max-width:480px) {
+    .container { padding:15px; }
+    .otp { font-size:24px; padding:12px 20px; letter-spacing:4px; }
+    p { font-size:13px; }
+  }
+</style>
 </head>
-<body style="margin:0;padding:0;background:#ffffff;font-family:Arial,sans-serif;">
-    <table width="100%" cellpadding="0" cellspacing="0" style="background:#ffffff;">
-        <tr>
-            <td align="center" style="padding:0;">
-                <table width="100%" cellpadding="0" cellspacing="0" style="max-width:480px;background:#ffffff;">
-                    <!-- Header -->
-                    <tr>
-                        <td style="padding:30px 20px 20px;text-align:center;">
-                            <div style="color:#333;font-size:24px;font-weight:bold;">ZayTrade</div>
-                            <div style="color:#666;font-size:14px;margin-top:4px;">Password Reset</div>
-                        </td>
-                    </tr>
-                    
-                    <!-- Content -->
-                    <tr>
-                        <td style="padding:0 20px;">
-                            <p style="margin:0 0 16px;font-size:16px;color:#333;">
-                                Hello <strong>${name}</strong>,
-                            </p>
-                            
-                            <p style="margin:0 0 24px;font-size:15px;color:#555;">
-                                Your password reset code:
-                            </p>
-                            
-                            <!-- OTP Box -->
-                            <table width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 24px;">
-                                <tr>
-                                    <td align="center" style="background:#f8f8f8;border:2px solid #333;border-radius:6px;padding:20px;">
-                                        <div style="font-size:24px;font-weight:bold;color:#333;letter-spacing:6px;font-family:monospace;">
-                                            ${otp}
-                                        </div>
-                                        <div style="font-size:13px;color:#666;margin-top:8px;">
-                                            Expires in 10 minutes
-                                        </div>
-                                    </td>
-                                </tr>
-                            </table>
-                            
-                            <p style="margin:0 0 20px;font-size:14px;color:#666;">
-                                Enter this code to reset your password.
-                            </p>
-                            
-                            <!-- Note -->
-                            <table width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 20px;">
-                                <tr>
-                                    <td style="background:#f8f8f8;border-left:3px solid #666;padding:12px;">
-                                        <p style="margin:0;font-size:12px;color:#777;">
-                                            If you didn't request this, please secure your account.
-                                        </p>
-                                    </td>
-                                </tr>
-                            </table>
-                        </td>
-                    </tr>
-                    
-                    <!-- Footer -->
-                    <tr>
-                        <td style="padding:30px 20px;text-align:center;border-top:1px solid #eee;">
-                            <div style="color:#888;font-size:12px;">
-                                © ${new Date().getFullYear()} ZayTrade Security
-                            </div>
-                        </td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
-    </table>
+<body>
+  <table width="100%" cellpadding="0" cellspacing="0">
+    <tr>
+      <td align="center">
+        <div class="container">
+          <h2>ZayTrade</h2>
+          <p style="font-size:13px;">Password Reset Request</p>
+          <hr style="border:none;height:1px;background:#e0e0e0;margin:15px 0;">
+          <p>Hello <strong>${name}</strong>,</p>
+          <p>You requested a password reset. Use the OTP below:</p>
+          <div class="otp">${otp}</div>
+          <p>If you did not request this, ignore this email.</p>
+          <p class="footer">Secure Trading Notifications • ZayTrade</p>
+        </div>
+      </td>
+    </tr>
+  </table>
 </body>
 </html>
 `;
+
 
 // ==============================
 // GENERIC SEND FUNCTION
