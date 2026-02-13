@@ -31,9 +31,13 @@ export default function OrderModal({
     const [convertFrom, setConvertFrom] = useState("BTC");
 
     const durations = [
-        { id: 30, rate: 12, min: 100, max: 5000 },
-        { id: 60, rate: 15, min: 500, max: 10000 },
-        { id: 120, rate: 20, min: 1000, max: 20000 }
+        { id: 30, rate: 10, min: 100, max: 5000 },
+        { id: 60, rate: 12, min: 500, max: 10000 },
+        { id: 120, rate: 15, min: 1000, max: 20000 },
+        { id: 180, rate: 17, min: 1500, max: 30000 },
+        { id: 240, rate: 19, min: 2000, max: 40000 },
+        { id: 365, rate: 22, min: 3000, max: 60000 }
+
     ];
 
     useEffect(() => {
@@ -151,7 +155,7 @@ export default function OrderModal({
     };
 
     if (!open) return null;
-    
+
 
     const cryptoAssets = {
         BTC: {
@@ -253,7 +257,7 @@ export default function OrderModal({
                                         </div>
                                         :
                                         <div className="text-xs text-white-600 dark:text-white-400">
-                                            You can add fund to increase <br/>your trading capacity.
+                                            You can add fund to increase <br />your trading capacity.
                                         </div>
 
                                     }

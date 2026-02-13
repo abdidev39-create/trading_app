@@ -38,7 +38,9 @@ export const register = async (req, res) => {
       email,
       password: hashedPassword,
       verifyOtp: otp,
-      verifyOtpExpireAt: Date.now() + 15 * 60 * 1000
+      verifyOtpExpireAt: Date.now() + 15 * 60 * 1000,
+      isPasswordSet:true
+      
     });
 
       sendVerifyOTP(email, name, otp).then(() => {

@@ -3,9 +3,12 @@ import mongoose from "mongoose";
 import userModel from "./usermodel.js";
 
 const durationRates = {
-  30: 12,  // 12% return for 30 seconds
-  50: 13,  // 13% return for 50 seconds  
-  60: 14   // 14% return for 60 seconds
+  30: 10,  // 10% return for 30 seconds
+  60: 12,  // 12% return for 60 seconds  
+  120: 15, // 15% return for 120 seconds
+  180: 17, // 17% return for 180 seconds
+  240: 19, // 19% return for 240 seconds
+  365: 22   // 22% return for 365 seconds
 };
 
 const orderSchema = new mongoose.Schema(
@@ -62,7 +65,7 @@ const orderSchema = new mongoose.Schema(
     // Time Management
     duration: {
       type: Number,
-      enum: [30, 50, 60, 120],
+      enum: [30, 60, 120, 180, 240, 365],
       required: true
     },
     startTime: {
@@ -198,12 +201,16 @@ orderSchema.virtual('isLoss').get(function() {
   return this.profit < 0;
 });
 
+
 orderSchema.virtual('durationLabel').get(function() {
   const labels = {
     30: '30 seconds',
     50: '50 seconds',
     60: '1 minute',
-    120: '2 minutes'
+    120: '2 minutes',
+    180: '3 minutes',
+    240: '4 minutes',
+    365: '6 minutes '
   };
   return labels[this.duration] || `${this.duration} seconds`;
 });
@@ -302,18 +309,20 @@ orderSchema.methods.calculateProfitLoss = async function() {
       this.wasForceWin = true;
       //percentage = Math.abs(this.expectedReturn / this.amount) * 100;
 
-      randomLossPercent = 1 + Math.random() *  durationRates[this.duration] 
-        percentage = randomLossPercent * this.leverage;
+     // randomLossPercent = 1 + Math.random() *  durationRates[this.duration] 
+     let  rateP = durationRates[this.duration] || 12;
+        percentage = rateP * this.leverage;
     } else {
       // Generate random loss (1-20% loss) with 90% probability
       const shouldLose = Math.random() < 0.9; // 90% chance of losing
       
       if (true) {
         // Generate random loss percentage between 1% and 50%
-        randomLossPercent = 3 + Math.random() *  durationRates[this.duration]-3; 
-        percentage = -randomLossPercent * this.leverage; // Apply leverage to loss
+       // randomLossPercent = 3 + Math.random() *  durationRates[this.duration]-3; 
+       let rateP = durationRates[this.duration] || 12;
+        percentage = -rateP * this.leverage; // Apply leverage to loss
         this.wasRandomLose = true;
-        this.randomLossPercentage = randomLossPercent;
+        this.randomLossPercentage = rateP;
         isRandomLoss = true;
        // console.log('Random loss applied:', randomLossPercent.toFixed(2), '%');
       } else {
@@ -371,7 +380,7 @@ orderSchema.methods.calculateProfitLoss = async function() {
 
 // Method to complete order with user balance update
 orderSchema.methods.completeOrder = async function(exitPrice) {
-  try {
+  try { 
    /// console.log('Completing order:', this._id);
     
     this.exitPrice = exitPrice;

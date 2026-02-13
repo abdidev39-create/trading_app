@@ -26,34 +26,36 @@ import KYCVerificationPopup from './components/KYCVerificationPopup.jsx';
 const LoanPayment = lazy(() => import("./pages/LoanPayment.jsx"));
 const NotificationCenter = lazy(() => import("./pages/NotificationCenter.jsx"));
 const WalletPage = lazy(() => import("./pages/WalletPage.jsx"));
+const History = lazy(() => import("./pages/History.jsx"));
 const App = () => {
-  const {userData,token} = useAuth();
-  const userRole = userData?.role ??""=== 'admin' ;
+  const { userData, token } = useAuth();
+  const userRole = userData?.role ?? "" === 'admin';
 
   return (
     <div>
       <ToastContainer />
-           {/* <Tawk />  */}
-         {/* <TawkButton/> */}
+      {/* <Tawk />  */}
+      {/* <TawkButton/> */}
       <Suspense fallback={<Loading text="Please wait..." />}>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
-          <Route path="/coin/:id" element={token ? <CoinDetail />: <SignUp/>} />
+          <Route path="/coin/:id" element={token ? <CoinDetail /> : <SignUp />} />
           <Route path="/login" element={token ? <Home /> : <Login />} />
-          <Route path="/deposit" element={token ?<Deposit />: <SignUp /> } />
-          <Route path="/withdraw" element={token?<Withdraw /> : <SignUp />} />
+          <Route path="/deposit" element={token ? <Deposit /> : <SignUp />} />
+          <Route path="/withdraw" element={token ? <Withdraw /> : <SignUp />} />
           <Route path="/signup" element={token ? <Home /> : <SignUp />} />
           <Route path="/verify" element={<Verify />} />
           <Route path="/reset" element={<Reset />} />
           <Route path="/kyc" element={<KYC />} />
-          <Route path="/loan" element={token ?<Loan  />: <SignUp />} />
+          <Route path="/loan" element={token ? <Loan /> : <SignUp />} />
           <Route path="/news" element={<News />} />
-          <Route path="/profile" element={token ?<Profile /> : <SignUp />}  />
-          <Route path="/admin" element={userRole ? <AdminHome /> : <N404/>} />
+          <Route path="/profile" element={token ? <Profile /> : <SignUp />} />
+          <Route path="/admin" element={userRole ? <AdminHome /> : <N404 />} />
           <Route path="/loan-payment" element={<LoanPayment />} />
-          <Route path="/dashboard/notifications" element={<NotificationCenter/>} />
-          <Route path="/wallet" element={token?<WalletPage/> : <SignUp/>} />
+          <Route path="/dashboard/notifications" element={<NotificationCenter />} />
+          <Route path="/wallet" element={token ? <WalletPage /> : <SignUp />} />
+          <Route path="/history" element={token ? <History /> : <SignUp />} />
           <Route path="*" element={<N404 />} />
 
 
@@ -63,7 +65,7 @@ const App = () => {
         </Routes>
       </Suspense>
 
-          {!window.location.pathname.includes('/kyc') && <KYCVerificationPopup />}
+      {!window.location.pathname.includes('/kyc') && <KYCVerificationPopup />}
 
     </div>
   )

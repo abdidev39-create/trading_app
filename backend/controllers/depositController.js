@@ -7,20 +7,18 @@ import NotificationService from '../services/notificationService.js';
 // Get deposit addresses
 const DEPOSIT_ADDRESSES = {
   BTC: {
-    Bitcoin: "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh",
-    Lightning: "lnbc1u1pjn9r5dpp5f8e9r2e8w9r3e8w9r4e8w9r5e8w9r6e8w9r7e8w9r8e8w9r9e8w9r0"
+    Bitcoin: "bc1qrw5hd0fy9a7z3d0t5vumry44dmnlpjxwaq8zk9",
+    Lightning: ""
   },
   ETH: {
-    Ethereum: "0xA1b32c59f98d0e31B410d98a2F9f77c9c12c9A10",
-    Arbitrum: "0xD29f1F2A8a44A221f7344Ac08ac77c99c64Fa22b"
+    Ethereum: "0xa405e5F4297953fD9b7081AF10Ba5E718cDa22fD",
+    Arbitrum: ""
   },
   USDT: {
-    TronTRC20: "TYm89nsF93AA9je392jsuA8d92msZZ912",
-    ERC20: "0xA1b32c59f98d0e31B410d98a2F9f77c9c12c9A10"
+    TronTRC20: "TMPYc1bYVD3QrrcmmMmBsJEFkdzHpraYnG",
+    ERC20: ""
   },
-  //BNB: {
-  //BEP20: "0xA1b32c59f98d0e31B410d98a2F9f77c9c12c9A10"
-  //}
+ 
 };
 
 // ==================== USER CONTROLLERS ====================

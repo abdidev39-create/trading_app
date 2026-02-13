@@ -23,11 +23,15 @@ import {
 import { assets } from '../assets/assets';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const OrdersDisplay = () => {
+
+const OrdersDisplay = ({ tradeHistory }) => {
   const { activeOrders, completedOrders, handleOrderComplete, stats, refreshOrders, isLoading } = useOrders();
   const { prices } = usePriceFeed();
-  const [activeTab, setActiveTab] = useState('active');
+  let x = tradeHistory ? 'completed' :'active'
+  const [activeTab, setActiveTab] = useState(x);
   const [isRefreshing, setIsRefreshing] = useState(false);
+
+
 
   const getCurrentPrice = (coinId) => {
     return prices[coinId]?.usd || 0;
@@ -94,7 +98,7 @@ const OrdersDisplay = () => {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
           <div>
             <h2 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">
-              Trading Dashboard
+              {tradeHistory ? 'Trade History' : 'Trading Dashboard'}
             </h2>
             <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1">
               {activeTab === 'active' 

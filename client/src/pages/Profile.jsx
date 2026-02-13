@@ -1,481 +1,613 @@
 import { useState, useEffect } from "react";
-import {
-  LogOut, Eye, EyeOff, ChevronLeft,
-  Bell, CheckCircle2, HelpCircle, ArrowDownCircle,
-  ArrowUpCircle,
-  BadgeDollarSign,
-  Clock4,
-  CreditCard,
-  Shield,
-  User
-
-} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import axios from "axios";
-import { assets } from "../assets/assets";
-import MobileNav from "../components/MobileNav";
 import { toast } from "react-toastify";
+import MobileNav from "../components/MobileNav";
 import Loading from "../components/Loading";
+import ProfileEditModal from "../components/ProfileEditModal";
+import ChangePasswordModal from "../components/ChangePasswordModal";
+
+// Icons
+import {
+  // Navigation
+  ChevronLeft,
+  LogOut,
+
+  // Actions
+  ArrowDownCircle,
+  ArrowUpCircle,
+  BadgeDollarSign,
+  Clock4,
+
+  // Settings
+  User,
+  Key,
+  IdCard,
+  Shield,
+  HelpCircle,
+  Bell,
+  CreditCard,
+
+  // KYC Status
+  CheckCircle,
+  Clock,
+  XCircle,
+  AlertCircle,
+
+  // UI
+  Eye,
+  EyeOff,
+  ChevronRight,
+  Camera,
+  Mail,
+  Calendar,
+  Copy,
+  ExternalLink,
+  X,
+
+} from "lucide-react";
 
 export default function ProfilePage() {
-
   const navigate = useNavigate();
-  const [showBalance, setShowBalance] = useState(false);
-  const { backendUrl, token } = useAuth();
-  const [userdata, setUserdata] = useState({
-    name: "",
-    email: "",
-    avatar: "",
-    wallet: {
-      usdt: 0,
-      btc: 0,
-      eth: 0,
-      loanUsdt: 0.00
-    }
+  const { backendUrl, token, logout } = useAuth();
+
+
+  // State
+  const [userdata, setUserdata] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+
+  // Modal states
+  const [showChangePassword, setShowChangePassword] = useState(false);
+  const [showProfileEdit, setShowProfileEdit] = useState(false);
+
+  // Form states
+  const [passwordData, setPasswordData] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: ""
   });
-  const [loading, setLoading] = useState(false);
-  const [marketPrices, setMarketPrices] = useState(null);
-  const [priceLoading, setPriceLoading] = useState(false);
-  const [lastUpdated, setLastUpdated] = useState(null);
 
-  const getMarketPrices = async () => {
+ const [isPasswordSet,setIsPasswordSet] = useState(true)
+
+  const [profileForm, setProfileForm] = useState({
+    name: "",
+    userName: "",
+    avatar: ""
+  });
+
+  // UI states
+  const [passwordErrors, setPasswordErrors] = useState({});
+  const [updatingPassword, setUpdatingPassword] = useState(false);
+
+  // Fetch profile data
+  const fetchProfile = async (showToast = false) => {
     try {
-      setPriceLoading(true);
-      const response = await axios.get(`${backendUrl}api/conversions/prices`, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
+      if (!showToast) setLoading(true);
+      else setRefreshing(true);
+
+      const res = await axios.get(`${backendUrl}api/profile/profile`, {
+        headers: { Authorization: `Bearer ${token}` }
       });
 
-      if (response.data.success) {
-        setMarketPrices(response.data.data);
-        setLastUpdated(response.data.timestamp);
-      } else {
-        toast.error(response.data.message || "Failed to fetch market prices");
-      }
-    } catch (error) {
-      console.error('Error getting prices:', error);
-      toast.error("Failed to fetch market prices");
-    } finally {
-      setPriceLoading(false);
-    }
-  };
-
-  const fetchProfile = async () => {
-    try {
-      setLoading(true);
-      const res = await axios.get(`${backendUrl}api/auth/profile`, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
+      //   console.log({data:res.data})
 
       if (res.data.success) {
         setUserdata(res.data.user);
+        // Initialize profile form with user data
+        setProfileForm({
+          name: res.data.user.name || "",
+          userName: res.data.user.userName || "",
+          avatar: res.data.user.avatar || ""
+        });
+
+       /// console.log(res.data.user.isPasswordSet)
+
+        setIsPasswordSet(res.data.user.isPasswordSet)
       } else {
-        toast.error('Fetch failed');
+        toast.error('Failed to fetch profile');
       }
     } catch (error) {
-      toast.error("Profile fetch failed");
-      return null;
+      console.error("Profile fetch error:", error);
+      toast.error(error.response?.data?.message || "Failed to load profile");
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
 
   useEffect(() => {
     fetchProfile();
-    getMarketPrices();
-
-    // Refresh prices every 30 seconds
-    const intervalId = setInterval(() => {
-      getMarketPrices();
-    }, 30000);
-
-    return () => clearInterval(intervalId);
   }, []);
 
-  // Calculate total balance with market prices
-  const calculateTotalBalance = () => {
-    const usdtValue = userdata.wallet.usdt || 0;
-
-    // Use market prices if available, otherwise use default values
-    const btcPrice = marketPrices?.BTC?.price || 0;
-    const btcValue = (userdata.wallet.btc || 0) * btcPrice;
-
-    const ethPrice = marketPrices?.ETH?.price || 0;
-    const ethValue = (userdata.wallet.eth || 0) * ethPrice;
-
-    const loanUsdtValue = userdata.wallet.loanUsdt || 0;
-
-    return usdtValue + btcValue + ethValue + loanUsdtValue;
+  // Handle logout
+  const handleLogout = async () => {
+    try {
+      await logout();
+      toast.success('Logged out successfully');
+      navigate('/');
+    } catch (error) {
+      toast.error('Failed to logout');
+    }
   };
 
-  // Calculate 24h change for total balance
-  const calculateTotalChange = () => {
-    const btcChange = marketPrices?.BTC?.change24h || 0;
-    const ethChange = marketPrices?.ETH?.change24h || 0;
-    const usdtChange = 0; // USDT is stablecoin, usually 0 change
+  // Password validation
+  const validatePassword = () => {
+    const errors = {};
 
-    // Calculate weighted average change based on portfolio composition
-    const totalBalance = calculateTotalBalance();
-    if (totalBalance === 0) return 0;
+    if (passwordData.newPassword.length < 8) {
+      errors.newPassword = "Password must be at least 8 characters";
+    }
+    if (!/[A-Z]/.test(passwordData.newPassword)) {
+      errors.newPassword = "Password must contain at least one uppercase letter";
+    }
+    if (!/[0-9]/.test(passwordData.newPassword)) {
+      errors.newPassword = "Password must contain at least one number";
+    }
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      errors.confirmPassword = "Passwords do not match";
+    }
 
-    const btcBalance = (userdata.wallet.btc || 0) * (marketPrices?.BTC?.price || 0);
-    const ethBalance = (userdata.wallet.eth || 0) * (marketPrices?.ETH?.price || 0);
-    const usdtBalance = userdata.wallet.usdt || 0;
-
-    const weightedChange = (
-      (btcBalance * btcChange) +
-      (ethBalance * ethChange) +
-      (usdtBalance * usdtChange)
-    ) / totalBalance;
-
-    return weightedChange;
+    setPasswordErrors(errors);
+    return Object.keys(errors).length === 0;
   };
 
-  const totalBalance = calculateTotalBalance();
-  const totalChange = calculateTotalChange();
-  const totalChangeAmount = (totalBalance * totalChange) / 100;
+  // Change password handler
+  const handlePasswordChange = async (e) => {
+    e.preventDefault();
 
-  const formatTimeAgo = (timestamp) => {
-    if (!timestamp) return "";
-    const now = new Date();
-    const updated = new Date(timestamp);
-    const diffInSeconds = Math.floor((now - updated) / 1000);
+    if (!validatePassword()) return;
 
-    if (diffInSeconds < 60) return "Just now";
-    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
-    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
-    return `${Math.floor(diffInSeconds / 86400)}d ago`;
+    try {
+      setUpdatingPassword(true);
+      const response = await axios.post(
+        `${backendUrl}api/profile/change-password`,
+        {
+          currentPassword: passwordData.currentPassword,
+          newPassword: passwordData.newPassword
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` }
+        }
+      );
+
+      if (response.data.success) {
+        toast.success("Password changed successfully");
+        setShowChangePassword(false);
+        setPasswordData({
+          currentPassword: "",
+          newPassword: "",
+          confirmPassword: ""
+        });
+        setPasswordErrors({});
+      }
+    } catch (error) {
+      console.error("Password change error:", error);
+      toast.error(error.response?.data?.message || "Failed to change password");
+    } finally {
+      setUpdatingPassword(false);
+    }
   };
 
-  const quickActions = [
-    { icon: <ArrowDownCircle size={20} />, label: "Deposit", color: "text-blue-400" },
-    { icon: <ArrowUpCircle size={20} />, label: "Withdraw", color: "text-green-400" },
-    { icon: <BadgeDollarSign size={20} />, label: "Loan", color: "text-purple-400" },
-    { icon: <Clock4 size={20} />, label: "History", color: "text-gray-400" }
-  ];
+  // Profile update handler
+  const handleProfileUpdate = async (e) => {
+    e.preventDefault();
+
+    try {
+      setLoading(true);
+      const response = await axios.put(
+        `${backendUrl}api/profile/profile`,
+        profileForm,
+        {
+          headers: { Authorization: `Bearer ${token}` }
+        }
+      );
+
+      if (response.data.success) {
+        toast.success("Profile updated successfully");
+        setShowProfileEdit(false);
+        fetchProfile();
+      }
+    } catch (error) {
+      console.error("Profile update error:", error);
+      toast.error(error.response?.data?.message || "Failed to update profile");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Format date
+  const formatDate = (date) => {
+    if (!date) return "N/A";
+    return new Date(date).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  };
+
+  // Get KYC status badge
+  const getKYCStatusBadge = (status) => {
+    const statuses = {
+      'approved': {
+        icon: <CheckCircle size={16} className="text-green-500" />,
+        text: "Verified",
+        color: "text-green-500",
+        bgColor: "bg-green-500/10",
+        borderColor: "border-green-500/30",
+        action: null
+      },
+      'under_review': {
+        icon: <Clock size={16} className="text-blue-500" />,
+        text: "Under Review",
+        color: "text-blue-500",
+        bgColor: "bg-blue-500/10",
+        borderColor: "border-blue-500/30",
+        action: null
+      },
+      'pending': {
+        icon: <Clock size={16} className="text-yellow-500" />,
+        text: "Pending",
+        color: "text-yellow-500",
+        bgColor: "bg-yellow-500/10",
+        borderColor: "border-yellow-500/30",
+        action: null
+      },
+      'rejected': {
+        icon: <XCircle size={16} className="text-red-500" />,
+        text: "Rejected",
+        color: "text-red-500",
+        bgColor: "bg-red-500/10",
+        borderColor: "border-red-500/30",
+        action: "Resubmit"
+      },
+      'not_submitted': {
+        icon: <AlertCircle size={16} className="text-gray-500" />,
+        text: "Not Verified",
+        color: "text-gray-500",
+        bgColor: "bg-gray-500/10",
+        borderColor: "border-gray-500/30",
+        action: "Verify Now"
+      }
+    };
+    return statuses[status] || statuses['not_submitted'];
+  };
+
+  // Handle KYC navigation
+  const handleKYCAction = () => {
+    navigate('/');
+  };
+
+  if (loading) {
+    return <Loading text="Loading profile..." fullScreen />;
+  }
+
+  if (!userdata) {
+    return (
+      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+        <div className="text-center">
+          <AlertCircle size={48} className="text-red-500 mx-auto mb-4" />
+          <h2 className="text-xl font-semibold text-white mb-2">Failed to load profile</h2>
+          <p className="text-gray-400 mb-4">Please try again</p>
+          <button
+            onClick={() => fetchProfile()}
+            className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
+  console.log("User data:", userdata);
+  const kycStatus = getKYCStatusBadge(userdata.kycStatus);
 
   return (
-    loading ? (
-      <Loading text="Fetching your profile..." />
-    ) : (
-      <div className="min-h-screen bg-gray-900 text-gray-100 mb-20 ">
-        <MobileNav />
+    <div className="min-h-screen bg-gray-900 text-gray-100">
+      <MobileNav />
 
-        {/* Header */}
-        <div className=" sm:block bg-gray-900 sticky top-0 z-50">
-          <div className="max-w-4xl mx-auto px-4 py-4">
-            <div className="flex items-center justify-between">
+      {/* Header */}
+      <header className="sticky top-0 z-50 bg-gray-900/95 backdrop-blur-sm border-b border-gray-800 ">
+        <div className="max-w-4xl mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <button
+              onClick={() => navigate(-1)}
+              className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors group"
+            >
+              <ChevronLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
+              <span className="font-medium">Back</span>
+            </button>
+            <div className="flex items-center gap-2">
               <button
-                onClick={() => navigate("/")}
-                className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
+                onClick={() => fetchProfile(true)}
+                disabled={refreshing}
+                className="p-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition-colors"
+                title="Refresh"
               >
-                <ChevronLeft size={20} />
-                <span className="font-medium">Back</span>
+                <svg
+                  className={`w-5 h-5 ${refreshing ? 'animate-spin' : ''}`}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
               </button>
             </div>
           </div>
         </div>
+      </header>
 
-        {/* Main Content */}
-        <div className="max-w-4xl mx-auto px-2 py-6">
-          <div className="space-y-6">
+      {/* Main Content */}
+      <main className="max-w-4xl mx-auto px-1 sm:px-4 py-8">
+        <div className="space-y-6">
 
-            {/* Profile Header */}
-            <div className="bg-gray-900 rounded-lg sm:border border-gray-700 p-3 sm:p-6">
-              <div className="flex items-center gap-4">
-                <div className="relative">
-                  <div className="w-16 h-16 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-300 text-2xl font-semibold border-2 border-gray-700">
-                    {userdata.name && userdata.name.trim()[0]}
+
+
+          {/* Profile Header Card */}
+          <div className="bg-gradient-to-br from-gray-900 to-gray-900 rounded-2xl sm:border sm:border-gray-700 p-6 shadow-xl">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
+              {/* Avatar */}
+              <div className="relative group">
+                <div className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 p-0.5">
+                  <div className="w-full h-full rounded-full bg-gray-900 flex items-center justify-center">
+                    {userdata.avatar ? (
+                      <img
+                        src={userdata.avatar}
+                        alt={userdata.name}
+                        className="w-full h-full rounded-full object-cover"
+                      />
+                    ) : (
+                      <span className="text-2xl font-semibold text-white">
+                        {userdata.name?.charAt(0).toUpperCase()}
+                      </span>
+                    )}
                   </div>
                 </div>
-
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
-                    <h1 className="sm:text-xl font-semibold text-white">{userdata?.name}</h1>
-                  </div>
-                  <p className="text-gray-400 text-sm mb-2">{userdata.email}</p>
-                  <div className="flex items-center gap-3">
-                    {/* Optional: Add user tier or member since info here */}
-                  </div>
-                </div>
+                <button
+                  onClick={() => setShowProfileEdit(true)}
+                  className="absolute -bottom-1 -right-1 p-1.5 bg-blue-600 hover:bg-blue-700 rounded-full border-2 border-gray-900 transition-colors"
+                >
+                  <Camera size={14} className="text-white" />
+                </button>
               </div>
-            </div>
 
-            {/* Balance Overview */}
-
-            {/*
-            
-             <div className="bg-gray-900 rounded-lg sm:border border-gray-700 p-3 sm:p-6">
-              <div className="flex justify-between items-center mb-6">
-                <div>
-                  <h2 className="text-md font-bold text-white">Balance Overview</h2>
-                  {marketPrices && lastUpdated && (
-                    <div className="flex items-center gap-2 mt-1">
-                      <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-                      <p className="text-gray-400 text-xs">Live • Updated {formatTimeAgo(lastUpdated)}</p>
-                    </div>
+              {/* User Info */}
+              <div className="flex-1">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-2">
+                  <h1 className="text-2xl font-bold text-white">
+                    {userdata.name}
+                  </h1>
+                  {userdata.userName && (
+                    <span className="text-gray-400">@{userdata.userName}</span>
                   )}
                 </div>
-                <div className="flex items-center gap-2">
-                  {priceLoading && (
-                    <span className="text-xs text-gray-400">Refreshing...</span>
-                  )}
+
+                <div className="flex flex-wrap items-center gap-3">
+                  {/* KYC Status Badge - Clickable if action available */}
                   <button
-                    onClick={() => setShowBalance(!showBalance)}
-                    className="flex items-center gap-2 px-3 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors text-sm font-medium text-gray-300"
+                    onClick={kycStatus.action ? handleKYCAction : undefined}
+                    disabled={!kycStatus.action}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full ${kycStatus.bgColor} ${kycStatus.borderColor} border transition-all ${kycStatus.action ? 'hover:scale-105 cursor-pointer' : 'cursor-default'
+                      }`}
                   >
-                    {showBalance ? <EyeOff size={16} /> : <Eye size={16} />}
-                    <span>{showBalance ? "Hide" : "Show"}</span>
+                    {kycStatus.icon}
+                    <span className={`text-xs font-medium ${kycStatus.color}`}>
+                      KYC: {kycStatus.text}
+                    </span>
+                    {kycStatus.action && (
+                      <span className="text-xs underline ml-1">{kycStatus.action}</span>
+                    )}
+                  </button>
+
+                  {/* Account Status */}
+                  <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/30">
+                    <Shield size={14} className="text-blue-500" />
+                    <span className="text-xs font-medium text-blue-500">
+                      {userdata.role === 'admin' ? 'Admin' : 'Verified Account'}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Email */}
+                <div className="flex items-center gap-2 mt-3 text-sm text-gray-400">
+                  <Mail size={14} />
+                  <span>{userdata.email}</span>
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(userdata.email);
+                      toast.success('Email copied to clipboard');
+                    }}
+                    className="p-1 hover:bg-gray-700 rounded transition-colors"
+                  >
+                    <Copy size={12} />
                   </button>
                 </div>
+
+                {/* Member Since */}
+                <div className="flex items-center gap-2 mt-1 text-sm text-gray-400">
+                  <Calendar size={14} />
+                  <span>Member since {formatDate(userdata.createdAt)}</span>
+                </div>
               </div>
 
-           //   Total Balance 
-              <div className="bg-gray-700/50 rounded-lg p-4 mb-6 border border-gray-600">
-                <div className="flex justify-between items-start mb-1">
-                  <p className="text-gray-400 text-sm">Total Balance</p>
-                  {marketPrices && (
-                    <button
-                      onClick={getMarketPrices}
-                      disabled={priceLoading}
-                      className="text-xs text-blue-400 hover:text-blue-300 transition-colors disabled:opacity-50"
-                      title="Refresh prices"
-                    >
-                      {priceLoading ? "Refreshing..." : "Refresh"}
-                    </button>
-                  )}
-                </div>
-                <div className="flex items-end justify-between">
+              {/* Edit Profile Button */}
+              <button
+                onClick={() => setShowProfileEdit(true)}
+                className="w-full sm:w-auto px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg border border-gray-700 transition-colors flex items-center justify-center gap-2"
+              >
+                <User size={16} />
+                <span>Edit Profile</span>
+              </button>
+            </div>
+
+            {/* Rejection Reason - Only show if rejected */}
+            {userdata.kycStatus === 'rejected' && userdata.kycRejectionReason && (
+              <div className="mt-4 p-3 bg-red-500/10 border border-red-500/30 rounded-lg">
+                <div className="flex items-start gap-2">
+                  <XCircle size={18} className="text-red-500 flex-shrink-0 mt-0.5" />
                   <div>
-                    <p className="text-2xl font-bold text-white mb-1">
-                      {showBalance ? `$${totalBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : "••••••"}
-                    </p>
-                    <div className="flex items-center gap-2">
-                      {showBalance && marketPrices && totalChange !== 0 && (
-                        <>
-                          <span className={`text-sm font-medium ${totalChange >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                            {totalChange >= 0 ? '+' : ''}{totalChange.toFixed(2)}%
-                          </span>
-                          <span className={`text-sm ${totalChange >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                            {totalChange >= 0 ? '+' : ''}${Math.abs(totalChangeAmount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                          </span>
-                          <span className="text-gray-500 text-sm">
-                            (24h)
-                          </span>
-                        </>
-                      )}
-                    </div>
+                    <p className="text-sm font-medium text-red-500">KYC Verification Failed</p>
+                    <p className="text-xs text-red-400 mt-1">{userdata.kycRejectionReason}</p>
+                    <button
+                      onClick={() => navigate('/kyc')}
+                      className="text-xs text-red-400 hover:text-red-300 underline mt-2"
+                    >
+                      Resubmit Documents
+                    </button>
                   </div>
                 </div>
               </div>
+            )}
+          </div>
 
-             ///  Balance Breakdown 
-              <div className="grid grid-cols-3 gap-4 mb-6">
-                <BalanceCard
-                  label="Available"
-                  value={userdata.wallet.usdt}
-                  showBalance={showBalance}
-                  color="text-green-400"
-                />
-                <BalanceCard
-                  label="Crypto"
-                  value={calculateTotalBalance() - userdata.wallet.usdt - userdata.wallet.loanUsdt}
-                  showBalance={showBalance}
-                  color="text-blue-400"
-                />
-                <BalanceCard
-                  label="Loans"
-                  value={userdata.wallet.loanUsdt}
-                  showBalance={showBalance}
-                  color="text-purple-400"
-                />
-              </div>
-
-             //Wallet Assets 
-              <div className="pt-6 border-t border-gray-700">
-                <h3 className="font-semibold text-white mb-4">Wallet Assets</h3>
-                <div className="space-y-3">
-                  <AssetRow
-                    currency="USDT"
-                    balance={userdata.wallet.usdt}
-                    showBalance={showBalance}
-                    logo={assets.tether}
-                    usdValue={userdata.wallet.usdt}
-                    price={1}
-                    change={0}
-                    marketPrices={marketPrices}
-                  />
-                  <AssetRow
-                    currency="BTC"
-                    balance={userdata.wallet.btc}
-                    showBalance={showBalance}
-                    logo={assets.bitcoin}
-                    usdValue={userdata.wallet.btc * (marketPrices?.BTC?.price || 0)}
-                    price={marketPrices?.BTC?.price || 0}
-                    change={marketPrices?.BTC?.change24h || 0}
-                    marketPrices={marketPrices}
-                  />
-                  <AssetRow
-                    currency="ETH"
-                    balance={userdata.wallet.eth}
-                    showBalance={showBalance}
-                    logo={assets.ethereum}
-                    usdValue={userdata.wallet.eth * (marketPrices?.ETH?.price || 0)}
-                    price={marketPrices?.ETH?.price || 0}
-                    change={marketPrices?.ETH?.change24h || 0}
-                    marketPrices={marketPrices}
-                  />
-
-                  <h3 className="font-semibold text-white mb-4 pt-4">Loan Assets</h3>
-
-                  <AssetRow
-                    currency="USDT Loan"
-                    balance={userdata.wallet.loanUsdt}
-                    showBalance={showBalance}
-                    logo={assets.tether}
-                    usdValue={userdata.wallet.loanUsdt}
-                    price={1}
-                    change={0}
-                    marketPrices={marketPrices}
-                  />
-                </div>
-              </div>
+          {/* Quick Actions */}
+          <div className="p-3 smp-6">
+            <h2 className="text-lg font-semibold text-white mb-4">Quick Actions</h2>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <ActionButton
+                icon={<ArrowDownCircle size={20} />}
+                label="Deposit"
+                color="text-blue-400"
+                onClick={() => navigate('/deposit')}
+              />
+              <ActionButton
+                icon={<ArrowUpCircle size={20} />}
+                label="Withdraw"
+                color="text-green-400"
+                onClick={() => navigate('/withdraw')}
+              />
+              <ActionButton
+                icon={<BadgeDollarSign size={20} />}
+                label="Loan"
+                color="text-purple-400"
+                onClick={() => navigate('/loan')}
+              />
+              <ActionButton
+                icon={<Clock4 size={20} />}
+                label="History"
+                color="text-gray-400"
+                onClick={() => navigate('/history')}
+              />
             </div>
-            */}
-           
+          </div>
 
-            {/* Quick Actions */}
-            <div className="bg-gray-900 rounded-lg sm:border border-gray-700 p-3 sm:p-6">
-              <h2 className="text-lg font-semibold text-white mb-4">Quick Actions</h2>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                {quickActions.map((action, index) => (
-                  <ActionCard
-                    onClick={() => {
-                      navigate(`/${action.label.toLowerCase()}`);
-                    }}
-                    key={index}
-                    icon={action.icon}
-                    label={action.label}
-                    color={action.color}
-                  />
-                ))}
-              </div>
+          {/* Security & Settings */}
+          <div className="bg-gray-900 rounded-2xl sm:border sm:border-gray-700 p-2 sm:p-6">
+            <h2 className="text-lg font-semibold text-white mb-4">Security & Settings</h2>
+            <div className="space-y-2">
+              {/* KYC Verification - Always show, clickable based on status */}
+              <SettingItem
+                icon={<IdCard size={18} />}
+                label="KYC Verification"
+                description={getKYCStatusDescription(userdata.kycStatus)}
+                status={userdata.kycStatus}
+                statusText={kycStatus.text}
+                statusColor={kycStatus.color}
+                onClick={() => navigate('/kyc')}
+                showChevron={userdata.kycStatus !== 'approved' && userdata.kycStatus !== 'pending' && userdata.kycStatus !== 'under_review'}
+              />
+
+              <SettingItem
+                icon={<Key size={18} />}
+                label= {isPasswordSet ? "Change Password" : 'Set password'}
+                description={isPasswordSet ? "Update your password regularly" : 'You are currently using social login. Set a password for added security and to enable password login.'}
+                onClick={() => setShowChangePassword(true)}
+              />
+
+
+              <SettingItem
+                icon={<HelpCircle size={18} />}
+                label="Help & Support"
+                description="Get help with your account"
+                onClick={() => {
+                  if (window.Tawk_API) {
+                    window.Tawk_API.showWidget();
+                    window.Tawk_API.maximize();
+                  }
+                }}
+              />
+
+              <SettingItem
+                icon={<LogOut size={18} />}
+                label="Sign Out"
+                description="Logout from your account"
+                danger
+                onClick={handleLogout}
+              />
             </div>
+          </div>
 
-            {/* Account Management */}
-            <div className="bg-gray-900 rounded-lg sm:border border-gray-700 p-3 sm:p-6">
-              <h2 className="text-lg font-semibold text-white mb-4">Account</h2>
-              <div className="space-y-3">
-                <SettingsCard
-                  icon={<User size={18} />}
-                  label="Personal Information"
-                  description="Update your profile details"
-                />
-
-                <SettingsCard
-                  icon={<HelpCircle size={18} />}
-                  label="Help & Support"
-                  description="Get help with your account"
-                  onClick={() => {
-
-                      // Show and maximize chat
-                      if (window.Tawk_API) {
-                        window.Tawk_API.showWidget();
-                        window.Tawk_API.maximize();
-                      }
-
-                  }}
-                />
-                <SettingsCard
-                  icon={<LogOut size={18} />}
-                  label="Sign Out"
-                  description="Logout from your account"
-                  danger
-                  onClick={() => {
-                    localStorage.removeItem('token');
-                    localStorage.removeItem('userData');
-                    toast.info('Logout successfully');
-                    navigate('/');
-                    window.location.reload();
-                  }}
-                />
+          {/* Account Info - Optional */}
+          <div className="bg-gray-800/30 rounded-2xl border border-gray-700 p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-sm font-medium text-gray-400">Account ID</h3>
+                <p className="text-sm text-white font-mono mt-1">{userdata._id}</p>
               </div>
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(userdata._id);
+                  toast.success('Account ID copied');
+                }}
+                className="p-2 text-gray-400 hover:text-white hover:bg-gray-700 rounded-lg transition-colors"
+              >
+                <Copy size={16} />
+              </button>
             </div>
           </div>
         </div>
-      </div>
-    )
-  );
-}
+      </main>
 
-// Component for balance cards
-function BalanceCard({ label, value, showBalance, color }) {
-  return (
-    <div className="bg-gray-700/50 rounded-lg p-4 border border-gray-600 text-center">
-      <div className="text-gray-400 text-sm mb-2">{label}</div>
-      <div className={`font-semibold text-md ${color}`}>
-        {showBalance ? `$${value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : "••••"}
-      </div>
-    </div>
-  );
-}
 
-// Component for asset rows with market data
-function AssetRow({ currency, balance, showBalance, logo, usdValue, price, change, marketPrices }) {
-  const isStablecoin = currency === "USDT" || currency === "USDT Loan";
-
-  return (
-    <div className="flex items-center justify-between p-3 hover:bg-gray-700/50 rounded-lg transition-colors border border-transparent hover:border-gray-600">
-      <div className="flex items-center gap-3">
-        <img
-          src={logo}
-          alt={currency}
-          className="w-8 h-8 rounded-full"
+      {/* Change Password Modal */}
+      {showChangePassword && (
+        <ChangePasswordModal
+        passwordErrors ={passwordErrors }
+        setShowChangePassword={setShowChangePassword}
+        handlePasswordChange={handlePasswordChange}
+        setPasswordData={setPasswordData}
+        passwordData={passwordData}
+        updatingPassword={updatingPassword}
+        isPasswordSet={isPasswordSet}
+        setIsPasswordSet={setIsPasswordSet}
+        setPasswordErrors={setPasswordErrors}
         />
-        <div>
-          <div className="font-medium text-white">{currency}</div>
-          <div className="text-gray-400 text-sm">
-            {showBalance ? `${parseFloat(balance).toLocaleString(undefined, { maximumFractionDigits: 8 })} ${currency.split(' ')[0]}` : "••••"}
-          </div>
-          {showBalance && marketPrices && !isStablecoin && price > 0 && (
-            <div className="flex items-center gap-2 mt-1">
-              <span className="text-xs text-gray-500">
-                ${price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-              </span>
-              <span className={`text-xs ${change >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                {change >= 0 ? '+' : ''}{change?.toFixed(2)}%
-              </span>
-              <span className="text-gray-500 text-xs">(24h)</span>
-            </div>
-          )}
-        </div>
-      </div>
-      <div className="text-right">
-        <div className="font-semibold text-white mb-1">
-          {showBalance ? `$${parseFloat(usdValue).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : "••••••"}
-        </div>
-        {showBalance && marketPrices && !isStablecoin && (
-          <div className="text-xs text-gray-400">
-            {parseFloat(balance).toFixed(6)} {currency.split(' ')[0]}
-          </div>
-        )}
-      </div>
+      )}
+
+
+
+
+
+      {/* Edit Profile Modal */}
+      {showProfileEdit && (
+        <ProfileEditModal
+          handleProfileUpdate={handleProfileUpdate}
+          setShowProfileEdit={setShowProfileEdit}
+          setProfileForm={setProfileForm}
+          loading={Loading}
+          profileForm={profileForm}
+          userdata={userdata}
+          setPasswordErrors ={setPasswordErrors}
+        />
+
+      )}
+
     </div>
   );
 }
 
-// Component for action cards
-function ActionCard({ icon, label, color, onClick }) {
+// ============= Helper Components =============
+
+// Action Button Component
+function ActionButton({ icon, label, color, onClick }) {
   return (
     <button
       onClick={onClick}
-      className="flex flex-col items-center p-4 hover:bg-gray-700 rounded-lg border border-gray-700 hover:border-gray-500 transition-colors group"
+      className="flex flex-col items-center p-4 hover:bg-gray-700 rounded-lg border border-gray-700 hover:border-gray-500 transition-all group"
     >
-      <div className={`mb-2 ${color}`}>
+      <div className={`mb-2 ${color} group-hover:scale-110 transition-transform`}>
         {icon}
       </div>
       <span className="text-sm font-medium text-gray-300">{label}</span>
@@ -483,22 +615,47 @@ function ActionCard({ icon, label, color, onClick }) {
   );
 }
 
-// Component for settings cards
-function SettingsCard({ icon, label, description, danger = false, onClick = () => { } }) {
+// Setting Item Component
+function SettingItem({ icon, label, description, status, statusText, statusColor, danger = false, onClick, showChevron = true }) {
   return (
     <button
       onClick={onClick}
-      className={`flex items-center gap-4 p-4 w-full text-left hover:bg-gray-700/50 rounded-lg border border-transparent hover:border-gray-600 transition-colors ${danger ? "text-red-400 hover:text-red-300" : "text-gray-300"
+      className={`w-full flex items-center gap-4 p-4 rounded-lg transition-all hover:bg-gray-700/50 border border-transparent hover:border-gray-600 ${danger ? 'text-red-400 hover:text-red-300' : 'text-gray-300'
         }`}
     >
-      <div className={danger ? "text-red-500" : "text-gray-400"}>
+      <div className={danger ? 'text-red-500' : status ? statusColor : 'text-gray-400'}>
         {icon}
       </div>
 
-      <div className="flex-1">
-        <div className="font-medium text-sm">{label}</div>
-        <div className="text-gray-500 text-xs">{description}</div>
+      <div className="flex-1 text-left">
+        <div className="flex items-center gap-2">
+          <span className="font-medium text-sm">{label}</span>
+          {status && (
+            <span className={`text-xs px-2 py-0.5 rounded-full ${statusColor} bg-opacity-10 border border-current`}>
+              {statusText}
+            </span>
+          )}
+        </div>
+        <div className="text-gray-500 text-xs mt-0.5">{description}</div>
       </div>
+
+      {showChevron && <ChevronRight size={16} className="text-gray-500" />}
     </button>
   );
+}
+
+// Helper function for KYC status description
+function getKYCStatusDescription(status) {
+  switch (status) {
+    case 'approved':
+      return 'Your identity has been verified';
+    case 'under_review':
+      return 'Your documents are being reviewed';
+    case 'pending':
+      return 'Verification in progress';
+    case 'rejected':
+      return 'Resubmit your documents';
+    default:
+      return 'Verify your identity to unlock all features';
+  }
 }

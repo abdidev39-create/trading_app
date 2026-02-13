@@ -22,7 +22,8 @@ import tradeRouter from "./routes/tradeRoutes.js";
 import conversionRouter from "./routes/conversionRoutes.js";
 import notificationRouter from "./routes/notificationRoutes.js";
 import expiredLoanRouter from "./routes/expiredLoanRoutes.js";
-
+import profileRoutes from "./routes/profileRoutes.js";
+import depositAddressRouter from './routes/depositAddressRoutes.js'
 // Services
 import PriceFeedService from "./services/priceFeed.js";
 import './services/orderProcessor.js';
@@ -97,6 +98,8 @@ app.use("/api/trades", tradeRouter);
 app.use("/api/conversions", conversionRouter);
 app.use("/api/notifications", notificationRouter);
 app.use("/api/expired-loans", expiredLoanRouter);
+app.use("/api/profile", profileRoutes);
+app.use("/api/deposit-addresses", depositAddressRouter);
 
 app.get("/api/health", (req, res) => {
   res.json({ status: "ok", timestamp: new Date() });

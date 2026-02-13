@@ -37,13 +37,14 @@ export const tradeController = {
           message: `Missing required fields: ${missingFields.join(', ')}`
         });
       }
+     
 
       // Check if duration is valid
-      const validDurations = [30, 50, 60, 120];
+      const validDurations = [30, 50, 60, 120, 180, 240, 365];
       if (!validDurations.includes(parseInt(duration))) {
         return res.status(400).json({
           success: false,
-          message: "Invalid duration. Allowed: 30, 50, 60, 120 seconds"
+          message: "Invalid duration. Allowed: 30, 50, 60, 120, 180, 240, 365 seconds"
         });
       }
 
@@ -56,12 +57,16 @@ export const tradeController = {
         });
       }
 
+    
+
       // Check maximum amount based on duration
       const maxAmounts = {
         30: 5000,
-        50: 10000,
-        60: 20000,
-        120: 50000
+        60: 10000,
+        120: 20000,
+        180: 30000,
+        240: 40000,
+        365: 60000
       };
 
       if (parseFloat(amount) > maxAmounts[duration]) {
@@ -142,12 +147,18 @@ export const tradeController = {
         }
       }
 
+       
+
+      
+
       // Calculate duration rate for expected return
       const durationRates = {
-        30: 12,
-        50: 13,
-        60: 14,
-        120: 15
+        30: 10,
+        60: 12,
+        120: 15,
+        180: 17,
+        240: 19,
+        365: 22
       };
 
       const rate = durationRates[duration] || 12;

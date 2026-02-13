@@ -22,11 +22,14 @@ const userSchema = new mongoose.Schema(
     email: { type: String, required: true, unique: true },
     avatar: { type: String },
     password: { type: String }, // optional, only for manual signup
-
+    isPasswordSet:{ type: Boolean, default: false },
     // OTP for email/phone verification
     verifyOtp: { type: String, default: "" },
     verifyOtpExpireAt: { type: Number, default: 0 },
     isAccountVerified: { type: Boolean, default: false },
+    
+
+    
 
 
     // KYC

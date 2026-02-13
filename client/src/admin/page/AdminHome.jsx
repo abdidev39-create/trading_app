@@ -14,6 +14,9 @@ import LoansPanel from '../components/LoanPanel';
 import AdminLoanPaymentReview from '../components/AdminLoanPaymentReview';
 import NewsAdminPanel from '../components/NewsAdminPanel';
 import AdminExpiredLoans from '../components/AdminExpiredLoans';
+import DepositAddressManager from '../components/DepositAddressManager.jsx'
+
+
 
 export default function AdminHome() {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -38,12 +41,12 @@ export default function AdminHome() {
         return <AnalyticsPanel />;
       case 'predictions':
         return <PredictionsPanel />;
-        case 'news':
+        case 'news':<DepositAddressManager/>
         return <NewsAdminPanel/>;
         case 'AdminLoanPaymentReview':
         return <AdminLoanPaymentReview/>;
       case 'settings':
-        return <SystemSettings />;
+        return <DepositAddressManager/>
       case 'admin-profile':
         return <div className="p-6"><h1 className="text-2xl font-bold text-white">Admin Profile</h1></div>;
       case 'audit-logs':
