@@ -17,8 +17,6 @@ const navigate = useNavigate();
     </div>
       <OrdersDisplay 
       tradeHistory={true}
-
-      
       />
 
     </div>
